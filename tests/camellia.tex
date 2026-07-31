@@ -1,0 +1,135 @@
+\documentclass[letterpaper,openany,oneside,twocolumn]{book}
+\usepackage{bookmark}
+\usepackage{xstring}
+\usepackage{ragged2e}
+\usepackage{graphicx}
+\usepackage{ifthen}
+\usepackage{geometry}
+\usepackage{pstricks}
+
+\usepackage{luatexja-fontspec}
+\setmainjfont{Sarasa UI SC}
+\usepackage{dndtemplate} % 请确保你本地有这个宏包文件
+
+\setlength\oddsidemargin{\dimexpr(\paperwidth-\textwidth)/2 - 1in\relax}
+\setlength\evensidemargin{\oddsidemargin}
+
+\begin{document}
+\newgeometry{left=0cm,right=0cm,top=0cm,bottom=0cm}
+\onecolumn
+
+% --- 基本信息 ---
+\CharacterName{Camellian 卡梅}
+
+\Class{幻术师 4}
+\Background{骗子}
+\PlayerName{MKQ}
+\Race{Human}
+\Alignment{混乱善良}
+\XP{1} % 根据手写稿顶部的数字
+
+\CurrentHitPoints{23}
+\MaxHitPoints{7}
+\MaxHitDice{D6}
+
+% --- 属性值 (Ability Scores) ---
+\StrengthScore{10}
+\DexterityScore{14}
+\ConstitutionScore{13}
+\IntelligenceScore{20} % 手写稿显示15+2+1=18 (推测加成后)
+\WisdomScore{11}
+\CharismaScore{16}
+
+% --- 属性修正 (Modifiers) ---
+\StrengthModifier{0}
+\DexterityModifier{2}
+\ConstitutionModifier{1}
+\IntelligenceModifier{5}
+\WisdomModifier{0}
+\CharismaModifier{3}
+
+% --- 熟练与加成 ---
+\Proficiency{2}
+\Initiative{2}
+\Speed{30ft}
+\ArmorClass{12} % 10 + 敏捷2
+\Perception{10} % 被动察觉
+
+% --- 豁免 (Saving Throws) ---
+\StrengthSavingThrowModifier{0}
+\DexteritySavingThrowModifier{2}
+\ConstitutionSavingThrowModifier{1}
+\IntelligenceSavingThrowModifier{6} % 熟练
+\WisdomSavingThrowModifier{2}     % 熟练
+\CharismaSavingThrowModifier{3}
+
+\StrengthProficiency{False}
+\DexterityProficiency{False}
+\ConstitutionProficiency{False}
+\IntelligenceProficiency{True}
+\WisdomProficiency{True}
+\CharismaProficiency{False}
+
+\Inspiration{1}
+% --- 技能 (Skills) ---
+% 根据手写卡圆圈勾选部分
+\ArcanaSkillModifier{6}       % 奥秘 (熟练)
+\DeceptionSkillModifier{5}    % 欺瞒 (熟练)
+\HistorySkillModifier{4}      % 历史
+\InsightSkillModifier{0}      % 洞悉
+\InvestigationSkillModifier{6}% 调查 (熟练)
+\PerformanceSkillModifier{5}  % 表演 (熟练)
+\SleightOfHandSkillModifier{4}% 巧手 (熟练)
+\StealthSkillModifier{2}      % 隐匿
+
+\ArcanaProficiency{True}
+\DeceptionProficiency{True}
+\HistoryProficiency{False}
+\InvestigationProficiency{True}
+\PerformanceProficiency{True}
+\SleightOfHandProficiency{True}
+
+% --- 货币 ---
+\CP{0}
+\SP{0}
+\GP{838.9} % 根据手写稿右下角计算
+\EP{0}
+\PP{0}
+
+% --- 攻击与动作 ---
+\AddWeapon{匕首x2}{+4}{1d4+2 p}
+\AddWeapon{长棍}{+2}{1d6/1d8 b}
+\AddWeapon{酸液飞溅}{DC 14}{1d6 acid}
+
+\AttacksAdditional{\\\\
+法术攻击加值: +6 \\
+法术豁免DC: 14
+}
+
+% --- 语言与熟练 ---
+\OtherProficienciesLanguages{
+\textbf{语言}: 通用语, 手语, 精灵语 \\
+\textbf{装备}: 匕首, 飞镖, 轻弩, 游说, 棍棒 \\
+\textbf{工具}: 伪造工具, 表演服装
+}
+
+% --- 特性与天赋 (Features & Traits) ---
+\FeaturesTraits{
+\textbf{种族特性}: 适应力, 中型体型\\
+\textbf{职业特性}: 奥术回想(短休回环), 仪式施法\\
+\textbf{幻术学派}: 改进次级幻影, 幻术不需语言(Malleable Illusions - 不可用) \\
+\textbf{背景特性}: 伪造身份 (False Identity)\\
+\textbf{专长}: 熟练 x2
+
+}
+
+% --- 装备 ---
+\Equipment{
+法术书, 学者套装, 高档服装, 伪造工具, 100GP 珍珠 (鉴定术用), 小铃铛, 铁丝。
+}
+
+\rendercharactersheet
+\restoregeometry
+\twocolumn
+
+\end{document}

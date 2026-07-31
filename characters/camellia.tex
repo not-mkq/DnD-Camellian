@@ -1,0 +1,377 @@
+\documentclass[letterpaper,openany,oneside,twocolumn]{book}
+\usepackage{bookmark}
+\usepackage[justified]{dnd}
+\usepackage{ifthen}
+\usepackage{geometry}
+\usepackage{pstricks}
+
+\usepackage{dndtemplate}
+\usepackage{luatexja-fontspec} % Essential for Japanese/CJK
+
+%\setmainjfont{AR PL UKai CN}
+\setmainjfont[FakeBold = 2.0,UprightFont = *-Regular]{Yozai}
+%\setmainjfont{FandolKai}
+\setmainfont{Abydos:style=Regular}
+\setlength\oddsidemargin{\dimexpr(\paperwidth-\textwidth)/2 - 1in\relax}
+\setlength\evensidemargin{\oddsidemargin}
+
+% Headline
+\CharacterName{Camellia (卡梅)}
+
+% adds only main class and total level to prevent overflow
+\Class{幻术师 5}
+\Background{骗子}
+\PlayerName{was mkq}
+\Race{人类}
+\Alignment{混沌善良}
+\XP{Milestone (里程碑)}
+
+% Ability scores
+\StrengthScore{10+2}
+\DexterityScore{14}
+\ConstitutionScore{13}
+\IntelligenceScore{15->20}
+\WisdomScore{11}
+\CharismaScore{16+1}
+
+% Ability modifiers
+\StrengthModifier{1}
+\DexterityModifier{2}
+\ConstitutionModifier{1}
+\IntelligenceModifier{5}
+\WisdomModifier{0}
+\CharismaModifier{3}
+
+% Saving Throws
+\StrengthSavingThrowModifier{1}
+\DexteritySavingThrowModifier{2}
+\ConstitutionSavingThrowModifier{1}
+\IntelligenceSavingThrowModifier{8}
+\WisdomSavingThrowModifier{3}
+\CharismaSavingThrowModifier{3}
+
+\AcrobaticsSkillModifier{2}
+\AnimalHandlingSkillModifier{0}
+\ArcanaSkillModifier{5+3x2}
+\AthleticsSkillModifier{1}
+\DeceptionSkillModifier{6}
+\HistorySkillModifier{8}
+\InsightSkillModifier{3}
+\IntimidationSkillModifier{6}
+\InvestigationSkillModifier{8}
+\MedicineSkillModifier{0}
+\NatureSkillModifier{8}
+\PerceptionSkillModifier{0}
+\PerformanceSkillModifier{6}
+\PersuasionSkillModifier{6}
+\ReligionSkillModifier{8}
+\SleightOfHandSkillModifier{5}
+\StealthSkillModifier{2}
+\SurvivalSkillModifier{0}
+
+% Proficiencies
+\SetStrengthProficiency{0}
+\SetDexterityProficiency{0}
+\SetConstitutionProficiency{0}
+\SetIntelligenceProficiency{1}
+\SetWisdomProficiency{1}
+\SetCharismaProficiency{0}
+
+\SetAcrobaticsProficiency{0} %体操
+\SetAnimalHandlingProficiency{0}
+\SetArcanaProficiency{2} %奥秘
+\SetAthleticsProficiency{0} %运动
+\SetDeceptionProficiency{1} %欺瞒
+\SetHistoryProficiency{1} %历史
+\SetInsightProficiency{1} %洞悉
+\SetIntimidationProficiency{1} %欺瞒
+\SetInvestigationProficiency{1} %调查
+\SetMedicineProficiency{0} %医药
+\SetNatureProficiency{1} %自然
+\SetPerceptionProficiency{0} %察觉
+\SetPerformanceProficiency{1} %表演
+\SetPersuasionProficiency{1} %游说
+\SetReligionProficiency{1} %宗教
+\SetSleightOfHandProficiency{1} %巧手
+\SetStealthProficiency{0} %隐匿
+\SetSurvivalProficiency{0} %生存
+
+\Inspiration{\bullet}%英雄激励
+\Proficiency{3} %熟练加成
+\Perception{10} %被动察觉
+
+\ArmorClass{12} %AC 护甲等级
+\Initiative{2}
+\Speed{30ft}
+\MaxHitPoints{23+1D6}
+
+
+\MaxHitDice{D6}
+\CurrentHitDice{D6}
+
+\CP{}
+\SP{}
+\GP{0}
+\EP{}
+\PP{}
+
+
+
+% 近战：利用灵巧属性，假设你敏捷修正为 +3
+\AddWeapon{Dagger (Melee)}{+5}{1d4+2/Piercing}
+
+% 投掷：如果敌人太远，可以直接丢过去
+\AddWeapon{Dagger (Thrown 20/60)}{+5}{1d4+2/Piercing}
+
+% 单手模式
+\AddWeapon{Quarterstaff (One Hand)}{+4}{1d6+1/Bludgeoning}
+
+% 双手模式
+\AddWeapon{Quarterstaff (Two Hand)}{+4}{1d8+1/Bludgeoning}
+% 额外特征：包含法术位准备情况与法术列表
+\AttacksAdditional{
+魔化武器: 附赠，升环
+}
+
+%\AttacksAdditional{\textbf{Armor}: Leather Armor \\ }
+
+\OtherProficienciesLanguages{\textbf{Languages:} 通用语, 手语, 精灵语. \\
+\textbf{Weapons}: 匕首x2, 奥术法器(长棍), 法术书x2 \\
+\textbf{Other}: 伪造工具, 表演服装\\
+100GP 珍珠 (鉴定术用), 小铃铛, 铁丝。\\
+纱布, 蓝色红色永久染发剂, 永久发胶, 米老鼠头饰\\
+治疗药水x0\\}
+
+\Equipment{
+心灵护盾戒指 Ring of Mind Shielding: 同调中，无法察觉 \\\\
+%戒指，非普通（需同调）
+%着装此戒指期间，你免疫能让其他生物阅读你的思想、辨别你在说谎、知晓你阵营或生物类型的魔法。只有在你允许时，生物才能与你进行心灵感应交流。
+%你可以执行魔法动作来让戒指变的无法被察觉，持续至你脱下戒指、死亡或执行另一个魔法动作使其可被察觉为止。
+%如果你在着装戒指期间死亡，你的灵魂将进入戒指中，除非其内已寄宿着其他灵魂。你可以留在戒指内或奔向来世。只要你的灵魂处在戒指中，你就可以与着装它的任何生物进行心灵感应交流。着装者无法阻止这种心灵感应交流。\\
+造风之扇 Wind Fan: 造风术Gust of Wind （豁免DC13）\\\\
+%奇物，非普通
+%持握这把扇子时，你可以用它施展造风术Gust of Wind （豁免DC13）。在次日黎明之前，随后每再次使用这把扇子都会累积20\%的几率失效；如果扇子失效，则其会被撕裂成无用的非魔法碎纸。\\
+元素宝石 Elemental Gem: 红刚玉 火元素Fire Elemental \\\\
+%奇物，非普通\\
+%这枚宝石蕴含了一道元素能量的微尘。\\
+%你可以使用一个利用动作来打破宝石，随后宝石便会失去魔法，并召唤出一只元素（见怪物图鉴以获悉其数据）。元素会出现在距离被打破的宝石最近的未占据空间、理解你所说的语言、服从你的命令、使用你的先攻值并在你之后立即执行其回合。元素会在1小时后、它死亡时、你用一个附赠动作解消时消失。宝石的种类决定了其能召唤哪种元素，见下表：
+%\\
+%宝石 召唤的元素 \\
+%蓝色蓝宝石 气元素Air Elemental \\
+%绿宝石 水元素Water Elemental \\
+%红刚玉 火元素Fire Elemental \bullet \\
+%黄色钻石 土元素Earth Elemental \\
+
+%\textbf{Magic Items:} Potion of Healing, Potion of Greater Healing \\
+%\textbf{Weight:} 74.02 lb \\
+%\textbf{Capacity:} 165 lb
+}
+
+\PersonalityTraits{I am always calm, no matter what the situation. I never raise my voice or let my emotions control me.
+
+I would rather make a new friend than a new enemy.
+}
+
+\Ideals{Redemption. There's a spark of good in everyone. (Good)}
+
+\Bonds{Something important (a dragon's egg) was taken from me, and I aim to steal it back.}
+
+\Flaws{If there's a plan, I'll forget it. If I don't forget it, I'll ignore it.}
+
+\FeaturesTraits{
+\textbf{Features} \\
+施法，仪式学家，奥术回想(短休回环:5/2$\uparrow$)，记忆法术(短休替换一个法术)\\
+强化幻术(施展幻术无需言语，幻术距离若不小于10尺，增加到60尺)\\
+专长：熟习x2 (骗子、人类) , 属性值提升\\
+奥秘专精 \\
+技能熟练(11): 熟习:6, 法师:2, 骗子x2, 人类x1\\\\
+生命药水配方，勇气灵药配方，炸药制作！\\\\
+\textbf{植物Plant: }你获得无需法术位施展植物交谈的能力。每次长休只能使用一次。如果你具有3环以上法术位，你也可以用它们施展这个法术。使用你的智力，感知或魅力作为施法属性（由你选择）。\\
+}
+
+
+% Appearance
+
+% Appearance
+\Age{35}
+\Height{1.7m}
+\Weight{60kg}
+\Eyes{Blue}
+\Skin{White}
+\Hair{Magical Green!}
+
+% background
+
+\CharacterAppearance{
+\includegraphics[width=5.75cm]{characters/images/photo_2026-02-08_18-22-17.jpg}
+35岁—觉醒并立志成为异世界魔导师！\\
+    外貌描述：头戴巫师帽的简笔画形象。头发是绿的！
+
+}
+\AdditionalFeaturesAndTraits{
+\textbf{0环戏法：} 酸液飞溅(1d6)、(法师之手)、剑刃防护(1d4减免)、(次级幻影)、(舞光术)。\\
+\textbf{1环已学法术：} (巫术箭(2d12))、(虚假生命(2d4+4))、脚底抹油(疾走附加动作)、(护盾术(AC+5))、鉴定术(100GP珍珠)、警报术、通晓语言、云雾术。\\
+\textbf{2环已学：}(魅影之力)，匕首之云\\
+\textbf{法术书2：} 易容术、(法师护甲)、(魔法飞弹)、防护善恶。\\
+}
+
+\Characterbackground{
+银月城学生。曾与银羽城塞尔多建立友谊(Bear)。\\
+修理了银月城理发店地下水管道\\
+奇怪的大宅冒险\\
+地精欧德乐温(短讯术)，喜乐集市（妖精荒野）强大巨龙守护，妖精通道--不稳定，\\
+ }
+
+\Treasure{
+}
+
+\AlliesAndOrganizations{
+}
+
+\OrganizationName{Shadow Thieves
+}
+
+\OrganizationSymbol{\includegraphics[width=4.9cm,height=3.9cm]{characters/images/shadowthieves}
+}
+
+
+%Magic
+\SpellcastingClass{幻术师 准备:9}
+\SpellcastingAbility{智力}
+\SpellSaveDC{16(8+3+5)} %
+\SpellAttackBonus{+8} %
+
+% --- 0环 戏法 (Cantrips) ---
+\CantripSlotA{Mage Hand (法师之手)} %戏法1
+\CantripSlotB{Shocking Grasp (电爪)} %戏法5
+\CantripSlotC{Acid Splash (酸液飞溅 1d6)} %戏法1
+\CantripSlotD{Prestidigitation (魔法伎俩)}% 感官/玩火/清污/次级感觉/魔法印记/次级造物)} %戏法1
+\CantripSlotE{Minor Illusion (次级幻影)附赠动作，声音+影像！} %强化幻术3
+%\CantripSlotF{Dancing Lights (舞光术)} %幻术学者3
+
+% --- 1环 法术 (1st Level Spells) ---
+\FirstLevelSpellSlotsTotal{4} % 吟游诗人2级通常为3个槽位
+\FirstLevelSpellSlotsExpended{3}
+\FirstLevelSpellSlotA{Witch Bolt (巫术箭 2d12 60ft 专注)} %1级
+\FirstLevelSpellSlotAPrepared{True}
+
+\FirstLevelSpellSlotB{False Life (虚假生命 2d4+4)} %1级
+\FirstLevelSpellSlotBPrepared{False}
+
+\FirstLevelSpellSlotC{False Life (七彩喷射)} %幻术学者4
+\FirstLevelSpellSlotCPrepared{True}
+
+\FirstLevelSpellSlotD{Shield (护盾术 AC+5)} %1级
+\FirstLevelSpellSlotDPrepared{False}
+
+\FirstLevelSpellSlotE{Mage Armor (法师护甲)} %豪宅中拾的法术书
+\FirstLevelSpellSlotEPrepared{False}
+
+\FirstLevelSpellSlotF{Illsory Script (迷幻手稿) 仪式 幻术} %1级
+\FirstLevelSpellSlotFPrepared{False}
+
+\FirstLevelSpellSlotG{Magic Missile (魔法飞弹) 仪式} %豪宅中拾的法术书
+\FirstLevelSpellSlotGPrepared{False}
+
+\FirstLevelSpellSlotH{Detect Magic (侦测魔法)} %2级
+\FirstLevelSpellSlotHPrepared{True}
+
+\FirstLevelSpellSlotI{Expeditious Retreat (脚底抹油)} %1级
+\FirstLevelSpellSlotIPrepared{False}
+
+\FirstLevelSpellSlotJ{Identify (鉴定术 100GP珍珠)} %豪宅中拾的法术书
+\FirstLevelSpellSlotJPrepared{False}
+
+\FirstLevelSpellSlotK{Alarm (警报术)} %1级
+\FirstLevelSpellSlotKPrepared{False}
+
+\FirstLevelSpellSlotL{Comprehend Languages (通晓语言)} %2级
+\FirstLevelSpellSlotLPrepared{False}
+
+\FirstLevelSpellSlotM{Fog Cloud (云雾术) ... 易容术 防护善恶} %3级
+\FirstLevelSpellSlotMPrepared{False}
+
+\FirstLevelSpellSlotN{Disguise Self (易容术) 幻术} %豪宅中拾的法术书
+\FirstLevelSpellSlotNPrepared{False}
+
+\FirstLevelSpellSlotO{Protection from Evil and Good (防护善恶)} %豪宅中拾的法术书
+\FirstLevelSpellSlotOPrepared{False}
+
+
+
+% --- 2环 法术 (2nd Level Spells) ---
+\SecondLevelSpellSlotsTotal{3}
+\SecondLevelSpellSlotsExpended{3}
+
+\SecondLevelSpellSlotA{Phantasmal Force (魅影之力) 幻术} %幻术学者3
+\SecondLevelSpellSlotAPrepared{True}
+
+
+
+\SecondLevelSpellSlotC{Cloud of Daggers (匕首之云)} %4级
+\SecondLevelSpellSlotCPrepared{False}
+
+\SecondLevelSpellSlotD{Mirror Image (镜影术) 幻术} %4级
+\SecondLevelSpellSlotDPrepared{True}
+
+\SecondLevelSpellSlotE{Cloud of Daggers (卜筮术) 仪式} %诸事无常地精教的
+\SecondLevelSpellSlotEPrepared{False}
+
+\SecondLevelSpellSlotF{Darkvision (黑暗视觉)} %豪宅中拾的法术书
+\SecondLevelSpellSlotFPrepared{False}
+
+\SecondLevelSpellSlotG{Hold Person (人类定身术) 专注} %豪宅中拾的法术书
+\SecondLevelSpellSlotGPrepared{False}
+
+\SecondLevelSpellSlotH{Invisibility (隐形术) 触碰 升环} %豪宅中拾的法术书
+\SecondLevelSpellSlotHPrepared{False}
+
+\SecondLevelSpellSlotI{Magic Weapon (魔化武器) 附赠} %豪宅中拾的法术书
+\SecondLevelSpellSlotIPrepared{False}
+
+\SecondLevelSpellSlotJ{Misty Step (迷踪步) 附赠} %3
+\SecondLevelSpellSlotJPrepared{True}
+
+\SecondLevelSpellSlotK{Slience (沉默术)} %卷轴
+\SecondLevelSpellSlotKPrepared{True}
+
+% --- 3环 法术 (3rd Level Spells) ---
+\ThirdLevelSpellSlotsTotal{2}
+\ThirdLevelSpellSlotsExpended{0}
+
+\ThirdLevelSpellSlotA{Counterspell (法术反制)} %5级
+\ThirdLevelSpellSlotAPrepared{True}
+
+\ThirdLevelSpellSlotB{Hypnotic Pattern (催眠图纹) 幻术} %5级
+\ThirdLevelSpellSlotBPrepared{True}
+
+\ThirdLevelSpellSlotC{Major Image (高级幻影) 幻术} %幻术学者5
+\ThirdLevelSpellSlotCPrepared{True}
+
+\ThirdLevelSpellSlotD{Fireball (火球术)} %购买
+\ThirdLevelSpellSlotDPrepared{False}
+
+\newcommand{\spellsheetchoice}{\renderspellsheet}
+
+
+
+\begin{document}
+\newgeometry{left=0cm,right=0cm,top=0cm,bottom=0cm}
+\onecolumn
+
+
+% CHARACTER PAGE
+\pdfbookmark[0]{Character Sheet}{Character Sheet}
+\rendercharactersheet
+
+% BACKSTORY PAGE
+\pdfbookmark[0]{Background Sheet}{Background Sheet}
+\renderbackgroundsheet
+
+
+% SPELLCASTING PAGE
+\pdfbookmark[0]{Spellcasting Sheet}{Spellcasting Sheet}
+\spellsheetchoice
+
+
+\end{document}

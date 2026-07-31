@@ -1,0 +1,61 @@
+\documentclass[letterpaper,openany,oneside,twocolumn]{book}
+
+\usepackage{luatexja-fontspec}
+\setmainjfont{Sarasa UI SC}
+\usepackage[justified]{dnd}
+\usepackage{ifthen}
+\usepackage{pstricks}
+\usepackage[UKenglish]{babel}
+\usepackage{dndtemplate}
+
+\setlength\oddsidemargin{\dimexpr(\paperwidth-\textwidth)/2 - 1in\relax}
+\setlength\evensidemargin{\oddsidemargin}
+
+\begin{document}
+\newgeometry{left=0cm,right=0cm,top=0cm,bottom=0cm}
+\onecolumn
+
+\CharacterName{Camellian 卡梅}
+
+% Appearance
+\Age{35}
+\Height{1.7m}
+\Weight{60kg}
+\Eyes{Blue}
+\Skin{Black}
+\Hair{White}
+
+% background
+\CharacterAppearance{
+    35岁—觉醒并立志成为异世界魔导师！\\
+    外貌描述：头戴巫师帽的简笔画形象。头发是绿的！
+}
+
+\AdditionalFeaturesAndTraits{
+    \textbf{0环戏法：} 酸液飞溅(1d6)、法师之手、剑刃防护(1d4减免)、次级幻影、舞光术。\\
+    \textbf{1环准备法术：} 巫术箭(2d12)、虚假生命(2d4+4)、脚底抹油(疾走附加动作)、护盾术(AC+5)、鉴定术(100GP珍珠)、警报术、通晓语言、云雾术。\\
+    \textbf{1环已学法术：} 易容术、法师护甲、魔法飞弹、防护善恶。
+}
+
+\Characterbackground{
+    骗子背景。银月城学生。阵营：混乱善良。\\
+    曾与银羽城塞尔多建立友谊(Bear)。
+}
+
+\Treasure{
+    金币：418.9 GP。\\
+    装备：匕首x2 (1d4+1 软期)、长棍(法器)、长袍、法术书、学者套装、伪造工具、表演服装。\\
+    红绿蓝魔法染色剂各一瓶，永久发胶，蛇油(洗头可以变成蛇发)，
+}
+
+\AlliesAndOrganizations{
+    银月城学生。
+}
+
+\OrganizationName{银月城}
+
+\renderbackgroundsheet
+\restoregeometry
+\twocolumn
+
+\end{document}
