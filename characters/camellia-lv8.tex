@@ -4,16 +4,60 @@
 \usepackage{ifthen}
 \usepackage{geometry}
 \usepackage{pstricks}
+\usepackage{fontawesome5}
+\usepackage{multicol}
 
 \usepackage{dndtemplate}
 \usepackage{luatexja-fontspec} % Essential for Japanese/CJK
 
-%\setmainjfont{AR PL UKai CN}
-\setmainjfont[FakeBold = 2.0,UprightFont = *-Medium]{Yozai}
-%\setmainjfont{FandolKai}
+% \setmainjfont{AR PL UKai CN} #楷体
+%\setmainjfont[FakeBold = 2.0,UprightFont = *-Medium]{Yozai}
+\setmainjfont[
+  UprightFont = *-Medium,
+  BoldFont = *-Medium,
+  BoldFeatures = { FakeBold = 2.5 }
+]{Yozai}
+% \setmainjfont{FandolKai}
 \setmainfont{Abydos:style=Regular}
-%\setlength\oddsidemargin{\dimexpr(\paperwidth-\textwidth)/2 - 1in\relax}
-%\setlength\evensidemargin{\oddsidemargin}
+
+\ExplSyntaxOn
+
+% 1. 定义一个内部函数，将 1-9 转换为对应的英文序数词
+\cs_new:Npn \__spell_num_to_word:n #1
+{
+  \int_case:nn { #1 }
+  {
+    { 1 } { First }
+    { 2 } { Second }
+    { 3 } { Third }
+    { 4 } { Fourth }
+    { 5 } { Fifth }
+    { 6 } { Sixth }
+    { 7 } { Seventh }
+    { 8 } { Eighth }
+    { 9 } { Ninth }
+  }
+}
+
+% 2. 定义用户宏 \spell，接收 6 个参数
+\NewDocumentCommand { \spellMKQ } { m m m m m m }
+{
+  % 构造并执行第一个控制序列，例如 \FirstLevelSpellSlot[#2]{#3(#4) #5}
+  \use:c { \__spell_num_to_word:n {#1} LevelSpellSlot #2 } 
+  { 
+    #3 ~ ( #4 ) 
+    % 检查 suffix 是否为空。如果不为空，则在前面加一个空格
+    \tl_if_blank:nF { #5 } { ~ #5 } 
+  }
+  
+  % 构造并执行第二个控制序列，以及后续的原样参数
+  \use:c { \__spell_num_to_word:n {#1} LevelSpellSlot #2 Prepared } { #6 }
+}
+
+
+\ExplSyntaxOff
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 % Headline
 \CharacterName{Camellia (卡梅)}
@@ -97,17 +141,17 @@
 \SetSurvivalProficiency{0} %生存
 
 \Inspiration{\bullet}%英雄激励
-\Proficiency{3} %熟练加成
+\Proficiency{4} %熟练加成
 \Perception{10} %被动察觉
 
 \ArmorClass{12+3\\\\\tiny{(法甲常驻)}} %AC 护甲等级
-\Initiative{2}
+\Initiative{2} %先攻
 \Speed{30ft}
 \MaxHitPoints{45}
 
 
 \MaxHitDice{D6}
-\CurrentHitDice{7}
+\CurrentHitDice{9}
 
 \CP{}
 \SP{}
@@ -116,71 +160,81 @@
 \PP{}
 
 
-
-% 近战：利用灵巧属性，假设你敏捷修正为 +3
-\AddWeapon{Dagger (Melee)}{+5}{1d4+2/Piercing}
-
-% 投掷：如果敌人太远，可以直接丢过去
-\AddWeapon{Dagger (Thrown 20/60)}{+5}{1d4+2/Piercing}
-
-% 单手模式
-\AddWeapon{Quarterstaff (One Hand)}{+4}{1d6+1/Bludgeoning}
-
-% 双手模式
-\AddWeapon{Quarterstaff (Two Hand)}{+4}{1d8+1/Bludgeoning}
-% 额外特征：包含法术位准备情况与法术列表
-\AttacksAdditional{
-魔化武器: 附赠，升环
+\OtherProficienciesLanguages{\small
+  \begin{description}
+  \item[语言] 通用语, 手语, 精灵语, 吉斯语学习中!
+  \item[武器] 匕首x2, 奥数法器(长棍), 法术书x3(一本丢家备用)
+  \item[施法材料] 一大堆()
+  \item[药水配方] 生命药水, 勇气药水, 炸药
+  \end{description}
+  {\footnotesize *是的, 这个人不会近战, 并没有开刃法术书}
 }
 
-%\AttacksAdditional{\textbf{Armor}: Leather Armor \\ }
+% \faLock : 同调中 \faUnLock : 没在同调
+\Equipment{\scriptsize
+  \begin{description}
+  \item[心灵护盾戒指~\faLock] 免疫心灵探测类魔法, 只有允许时可以心灵感应, 死时存储灵魂
+  \item[塔莎狂笑术面具] DC14
+  \item[造风之扇] 豁免DC13, 每次使用累计20\%失效概率, 失败破碎
+  \item[扑克牌门禁] 前往星琉璃航站
+  \item[发条护符] 攻击检定取10~(Daily)
+  \item[潮涌之光] 光亮术, 昼明术~(Daily)
+  \item[储法艾恩石0~\faLock] 4环
+  \item[储法艾恩石1~\faUnlock] 4环 给eagle
+  \end{description}
 
-\OtherProficienciesLanguages{
-  \textbf{Languages:} 通用语, 手语, 精灵语, 吉斯语学习中. \\
-  \textbf{Weapons:} 匕首x2, 奥术法器(长棍), 法术书x3 (一本备用丢家) \\
-  \textbf{施法耗材:} 100GP 珍珠 (鉴定术), 一朵价值300+GP的镀金花 (妖精召唤术)\\
 }
 
-
-\Equipment{
-火焰铠甲卷轴 \\\\
-催眠图纹卷轴 \\\\
-}
-
-\PersonalityTraits{
+\PersonalityTraits{\small
   I USE FIREBALL!!!!\\
+  冒险都是翘班出来冒的\\
+}
+
+\Ideals{\small
+  建个法师塔! 不想建法师塔的法师不是好法师!\\
+}
+
+\Bonds{\scriptsize
+  因为和学校各个大佬处的不错, 一定会有人愿意给死掉的卡梅丢个复生术的吧, 一定卡梅被绑架了会有人带钱来赎人吧x \\
+  风骸岛6君子里面的咕咕嘎嘎\\
+}
+
+\Flaws{\scriptsize
   注意力涣散的天才法师: 在学校光速地学会法术的主要原理后便无心了解细节问题, 施展出的法术偶尔会出现奇怪的效果, 目前在银月城有延毕风险\\
-  冒险都是翘课出来冒的
+  对说话的气氛缺少把握, 低感知人\\
 }
 
-\Ideals{建个法师塔! 不想建法师塔的法师不是好法师!}
-
-\Bonds{
-
-}
-
-\Flaws{}
-
-\FeaturesTraits{
-  \textbf{Features} \\
-  施法，仪式学家，奥术回想(短休回环:5/2$\uparrow$)，记忆法术(短休替换一个法术)\\
-  强化幻术(施展幻术无需言语，幻术距离若不小于10尺，增加到60尺)\\
-  专长：熟习x2 (骗子、人类) , 属性值提升\\
-  奥秘专精 \\
-  技能熟练(11): 熟习:6, 法师:2, 骗子x2, 人类x1\\\\
-  \\
-  \textbf{植物 Plant: } 你获得无需法术位施展植物交谈的能力。每次长休只能使用一次。\\
-  % 。如果你具有3环以上法术位，你也可以用它们施展这个法术。使用你的智力，感知或魅力作为施法属性（由你选择）
-  \textbf{药水配方: } 生命药水, 勇气灵药, 炸药\\
-  \textbf{仪式施法者 Ritual Caster:} 始终准备熟练度加值的三个一环仪式法术, 可以用
-
-% 属性值提升Ability Score Increase。你的智力、感知或魅力提升1，至多提升至20。
-% 仪式魔法Ritual Spells。你选择数道具有仪式标签的一环法术，其具体数量等于你的熟练加值。你始终准备着这几道法术，并可以用你拥有的任何法术位去施展它们。施展它们的施法属性为你用此专长提升的属性。此后，每当你的熟练加值提升时，你可以通过这个特性多获得一道始终准备的、带有仪式标签的一环法术。
-% 快速仪式Quick Ritual。你可以用通常的施法时间来施展一道仪式法术，而不需要仪式的延长施法时间。这么做不会花费你的法术位。一旦你通过这种方式施展了一道法术，直到完成一次长休前你都不能再使用这个增益。
+\FeaturesTraits{\scriptsize
+  \begin{description}
+  \item[植物] 化身植物人对着花儿甜言蜜语~(Daily)
+  \item[专长] 熟习x2, 属性值提升, 仪式施法者
+  \item[快速仪式] 免费n环仪式, 通常时间, Daily
+  \item[仪式魔法] 熟练加值个始终准备一环仪式魔法    
+  \item[学者] 奥秘专精
+  \item[戏法] 长修替换戏法x1
+  \item[记忆法术] 短休替换法术x1
+  \item[奥术回想] 短休回环(等级/2$\uparrow$)
+  \item[强化幻术] 幻术无需语言, 施法距离(>=10?+60), 附赠动作次级幻象(声音+影像)
+  \item[魅影生灵] Summon Beast/Fey 幻术, Daily, 半血, 150ft
+    
+  \end{description}
 }
 
 
 % Appearance
+
+% 这里记录一些天生施法
+\AddWeapon{次级幻象\faMask}{1min}{0环,90ft,附赠}
+\AddWeapon{植物交谈}{10min}{free/3环}
+
+\AddWeapon{野兽召唤\faMask\faBrain}{1h}{free/2环}
+\AddWeapon{妖精召唤\faMask\faBrain}{1h}{free/3环}
+
+\AddWeapon{谭森浮碟\faBahai}{1h}{free/1环}
+\AddWeapon{隐形仆役\faBahai}{1h}{free/1环}
+\AddWeapon{动物交谈\faBahai}{10min}{free/1环}
+\AddWeapon{通晓语言\faBahai}{1h}{free/1环}
+
 
 % Appearance
 \Age{35}
@@ -191,18 +245,13 @@
 \Hair{Magical Green!}
 
 % background
-
 \CharacterAppearance{
   \includegraphics[width=5.75cm]{characters/images/photo_2026-02-08_18-22-17.jpg}
   35岁—觉醒并立志成为异世界魔导师！\\\\
   外貌描述：头发是绿的！
-
 }
 \AdditionalFeaturesAndTraits{
-%\textbf{0环戏法：} 酸液飞溅(1d6)、(法师之手)、剑刃防护(1d4减免)、(次级幻影)、(舞光术)。\\
-%\textbf{1环已学法术：} (巫术箭(2d12))、(虚假生命(2d4+4))、脚底抹油(疾走附加动作)、(护盾术(AC+5))、鉴定术(100GP珍珠)、警报术、通晓语言、云雾术。\\
-%\textbf{2环已学：}(魅影之力)，匕首之云\\
-%\textbf{法术书2：} 易容术、(法师护甲)、(魔法飞弹)、防护善恶。\\
+
 }
 
 \Characterbackground{
@@ -215,60 +264,35 @@
   星琉璃航站传送阵\\
   星琉璃航站守卫: 眼魔\\
   吉斯扬基人骑士: 凯拉(短讯术)\\
-  风骸岛, 罗盘蔷薇号\\
+  风骸岛6君子!, 罗盘蔷薇号\\
   熏人洞窟\\
   \\
   \\
-  %想学的法术: 塔莎心灵鞭, 繁彩球, 缓慢术, 涅斯图魔法灵光
+  % 想学的法术: 塔莎心灵鞭, 繁彩球, 缓慢术, 涅斯图魔法灵光
 }
 
-\Treasure{
+\Treasure{\small
+  \begin{multicols}{2}
+  \begin{description}
+  \item[抄写法术书] 50gp/环/2h
+  \item[抄写卷轴]
+    环数/时间/钱数,0/1/15,1/1/25,2/3/100,\\
+    3/5/150,4/10/1000,5/25/1500,6/40/10k,\\
+    7/50/12.5k,8/60/15k,9/120/50k
+  \item[抄自己的法术书] 10gp/环/h
+  \item[高级治疗药水]
+  \item[通晓语言药水]
+  \item[火球术卷轴]
+  \item[催眠图纹卷轴]
+  \item[假象术卷轴]
+  \end{description}
   \textbf{Others}: 文书伪造工具, 易容工具, 表演服装\\
   赌具: 暗号纸牌, 羊毛长袍\\
   纱布, 蓝色红色永久染发剂, 永久发胶, \\
   米老鼠头饰, 带有美丽螺纹的贝类, 黄铜龙牙, 碎青铜龙骨\\
-  \textbf{药水:} 高级治疗药水x-1, 通晓语言药水x1\\ %通晓语言药水: 透明, 盐粒, 烟尘旋转
-  \\
-  \textbf{心灵护盾戒指 Ring of Mind Shielding:} 同调中，无法察觉 \\
-  {\scriptsize 你免疫阅读思想、辨别说谎、知晓阵营或生物类型的魔法。只有在你允许时，能与你心灵感应。}\\\\
-         %戒指，非普通（需同调）
-         %着装此戒指期间，你免疫能让其他生物阅读你的思想、辨别你在说谎、知晓你阵营或生物类型的魔法。只有在你允许时，生物才能与你进行心灵感应交流。
-         %你可以执行魔法动作来让戒指变的无法被察觉，持续至你脱下戒指、死亡或执行另一个魔法动作使其可被察觉为止。
-         %如果你在着装戒指期间死亡，你的灵魂将进入戒指中，除非其内已寄宿着其他灵魂。你可以留在戒指内或奔向来世。只要你的灵魂处在戒指中，你就可以与着装它的任何生物进行心灵感应交流。着装者无法阻止这种心灵感应交流。\\
-  \textbf{造风之扇 Wind Fan:} 造风术Gust of Wind （豁免DC13）\\
-         %奇物，非普通
-         %持握这把扇子时，你可以用它施展造风术Gust of Wind （豁免DC13）。
-  {\scriptsize 在次日黎明之前，随后每再次使用这把扇子都会累积20\%的几率失效, 则其会被撕裂成碎纸。}\\\\
-%   \textbf{元素宝石 Elemental Gem:} 红刚玉 火元素Fire Elemental \\\\
-%                 %奇物，非普通\\
-%                 %这枚宝石蕴含了一道元素能量的微尘。\\
-%                 %你可以使用一个利用动作来打破宝石，随后宝石便会失去魔法，并召唤出一只元素（见怪物图鉴以获悉其数据）。元素会出现在距离被打破的宝石最近的未占据空间、理解你所说的语言、服从你的命令、使用你的先攻值并在你之后立即执行其回合。元素会在1小时后、它死亡时、你用一个附赠动作解消时消失。宝石的种类决定了其能召唤哪种元素，见下表：
-%                 %\\
-%                 %宝石 召唤的元素 \\
-%                 %蓝色蓝宝石 气元素Air Elemental \\
-%                 %绿宝石 水元素Water Elemental \\
-%                 %红刚玉 火元素Fire Elemental \bullet \\
-%   %黄色钻石 土元素Earth Elemental \\
-  \textbf{扑克牌门禁: }前往星琉璃航站\\\\
-  \textbf{发条护符: } 当你进行一次攻击检定时，你可以放弃掷骰并在d20的骰值上取10。(Daily)\\\\
-  % 这枚铜制的护符内有数个互相咬合的微小齿轮，其以机械境——一个秩序至极，万物皆可被机械预测的位面——的魔法所驱动。模糊的滴答声与呼呼的噪音从中传出。
-  % 佩戴该护符期间，当你进行一次攻击检定时，你可以放弃掷骰并在d20的骰值上取10。该词条一经使用，直至次日黎明前都无法再次使用。
-  \textbf{潮涌之光: } 光亮术, 昼明术(一天一次)\\\\
-  \textbf{5环卷轴: }\\\\
-  \textbf{火球术卷轴, 催眠图纹卷轴}\\\\
 
   阿斯加特啦秘法: 成年金属龙, 封印1000年, 灵魂种下烙印, 破坏: 外力破坏,  巴哈姆特圣徽造成大伤害, 代价:龙的身体和全部灵魂
-%   潮涌之光
-% 工具
-% 一枚深海的魔法珍珠，摸上去非常冰凉，在夜晚会发出微弱的光照。
-%     在它周围 60 尺内，你可以说出命令语以使它施展 光亮术 Light 或 昼明术 Daylight。使用一次后直至次日黎明前，其昼明术效应都无法再次使用。
-%     你可以用一个动作来说出另一个命令语，以让发光球体飞到空中，漂浮在离地面不超过 5 尺的地方。球体将持续漂浮在空中，直到你或另一生物将它抓住。如果你离开球体周围 60 尺范围，则它将沿最短路径跟随你移动直到距离你 60 尺为止。如果它的移动遭到妨碍，它将闪烁着落回地面并回到启动前的状态。
-%
-% 光亮术 | Light
-% 法术效应终止前，珍珠会在其 20 尺半径内发出明亮光照，并在其外 20 尺范围发出微光光照。该物体被不透明的东西完全遮盖时，其光照被遮挡。
-%
-% 昼明术 | Daylight
-% 法术效应终止前，珍珠会在其 60 尺半径内发出明亮光照，并在其外 60 尺范围发出微光光照。该物体被不透明的东西完全遮盖时，其光照不会被遮挡。并且法术区域内任何三环或更低环阶法术创造的黑暗时，这些法术及其创造的黑暗都会被清除。
+  \end{multicols}
 
 }
 
@@ -282,23 +306,26 @@
 \OrganizationSymbol{\includegraphics[width=5.05cm]{characters/images/lambda.png}}
 
 
-%Magic
-\SpellcastingClass{幻术师 准备:11+2}
-\SpellcastingAbility{智力}
-\SpellSaveDC{16} %
-\SpellAttackBonus{+8} %
+% Magic
+\SpellcastingClass{幻术师 准备:14}
+\SpellcastingAbility{Intelligence}
 
+% 8+施法属性调整值+熟练加值
+\SpellSaveDC{17}
+% 施法属性调整值+熟练加值
+\SpellAttackBonus{+9}
+
+\begin{document}
 % --- 0环 戏法 (Cantrips) ---
 \CantripSlotA{□ Mage Hand (法师之手)} %戏法1
 \CantripSlotB{□ Shocking Grasp (电爪)} %戏法5
 \CantripSlotC{□ Acid Splash (酸液飞溅 1d6)} %戏法1
 \CantripSlotD{□ Prestidigitation (魔法伎俩)}% 感官/玩火/清污/次级感觉/魔法印记/次级造物)} %戏法1
-\CantripSlotE{□ Minor Illusion (次级幻影)附赠，声音+影像} %强化幻术3
-%\CantripSlotF{Dancing Lights (舞光术)} %幻术学者3
+
 
 \CantripSlotF{□ Fire Bolt (火焰箭)}
- % 持续时间：立即
-%你对施法距离内一名生物或物件掷出一把火焰，对目标进行一次远程法术攻击。命中则目标将受到1d10火焰伤害。未被着装或携带的可燃物件被该法术命中时将开始燃烧。
+% 持续时间：立即
+% 你对施法距离内一名生物或物件掷出一把火焰，对目标进行一次远程法术攻击。命中则目标将受到1d10火焰伤害。未被着装或携带的可燃物件被该法术命中时将开始燃烧。
 % 戏法强化。到达特定等级后，此戏法的伤害将增加1d10：5级（2d10）、11级（3d10）、17级（4d10）。
 \CantripSlotG{□ Friends (交友术), 专注}
 %% 持续时间：专注，至多1分钟
@@ -307,7 +334,7 @@
 
 \CantripSlotH{□ Message (传讯术)}
 % 传讯术｜Message
-%
+% 
 % 变化 戏法（吟游诗人、德鲁伊、术士、法师、奇械师）
 % 施法时间：动作
 % 施法距离：120尺
@@ -319,180 +346,73 @@
 % --- 1环 法术 (1st Level Spells) ---
 \FirstLevelSpellSlotsTotal{4}
 \FirstLevelSpellSlotsExpended{□□□□}
-\FirstLevelSpellSlotA{Witch Bolt (巫术箭 2d12 60ft 专注)} %1级
-\FirstLevelSpellSlotAPrepared{True}
 
-\FirstLevelSpellSlotB{False Life (虚假生命 2d4+4)} %1级
-\FirstLevelSpellSlotBPrepared{False}
+% 冒险必备
+\spellMKQ{1}{A}{Shield}{护盾术}{AC+5,反应}{True}
+\spellMKQ{1}{B}{Mage Armor}{法师护甲}{8h}{True}
 
-\FirstLevelSpellSlotC{False Life (七彩喷射)} %幻术学者4
-\FirstLevelSpellSlotCPrepared{False}
+% 有用/防护类
+\spellMKQ{1}{C}{Expeditious Retreat}{脚底抹油}{附赠\faBrain}{True}
+\spellMKQ{1}{D}{Feather Fall}{羽落术}{反应}{False}
+\spellMKQ{1}{E}{Absorb Elements}{吸收元素}{反应,强酸火焰闪电雷鸣}{True}
 
-\FirstLevelSpellSlotD{Shield (护盾术 AC+5) 反应} %1级
-\FirstLevelSpellSlotDPrepared{True}
+% 有用/攻击类
+\spellMKQ{1}{F}{Color Spray}{七彩喷射}{\faMask,15ft体质豁免,目盲}{True}
+\spellMKQ{1}{G}{Magic Missile}{魔法飞弹}{(3+n)x(1d4+1)}{False}
+\spellMKQ{1}{H}{Witch Bolt}{巫术箭}{\faBrain}{False}
+\spellMKQ{1}{I}{Chromatic Ball}{繁彩球}{90ft}{False}
+\spellMKQ{1}{J}{Jim's Magic Missile}{吉姆魔法飞弹}{2d4x(3+n),重击5d4}{False}
 
-\FirstLevelSpellSlotE{Mage Armor (法师护甲)} %豪宅中拾的法术书
-\FirstLevelSpellSlotEPrepared{False}
+% 可能有时有用?
+\spellMKQ{1}{K}{Disguise Self}{易容术}{\faMask,1h}{False}
+\spellMKQ{1}{L}{Silent Image}{无声幻影}{\faBrain\faMask,150ft}{False}
+\spellMKQ{1}{M}{Distort Value}{扭曲价值}{\faMask,n+1~ft}{False}
 
-\FirstLevelSpellSlotF{Illsory Script (迷幻手稿) 仪式 幻术} %1级
-\FirstLevelSpellSlotFPrepared{False}
+% 有用/无需准备
+\spellMKQ{1}{N}{Detect Magic}{侦测魔法}{\faBahai}{False}
+\spellMKQ{1}{O}{Illsory Script}{迷幻手稿}{\faBahai\faMask}{False}
+\spellMKQ{1}{P}{Identify}{鉴定术}{\faBahai}{False}
+\spellMKQ{1}{Q}{Alarm}{警报术}{1里,8h,\faBahai}{False}
+\spellMKQ{1}{R}{FindFamiliar}{寻获魔宠}{\faBahai,1h,100ft}{False}
 
-\FirstLevelSpellSlotG{Magic Missile (魔法飞弹)} %豪宅中拾的法术书
-\FirstLevelSpellSlotGPrepared{False}
+% 无用/无需准备
+\spellMKQ{1}{S}{Fog Cloud}{云雾术}{120ft,1h,\faBrain}{False}
+\spellMKQ{1}{T}{False Life}{虚假生命}{2d4+4+5xn}{False}
+\spellMKQ{1}{U}{Protection From Evil and Good}{防护善恶}{\faBrain}{False}
 
-\FirstLevelSpellSlotH{Detect Magic (侦测魔法) 仪式} %2级
-\FirstLevelSpellSlotHPrepared{False}
 
-\FirstLevelSpellSlotI{Expeditious Retreat (脚底抹油)} %1级
-\FirstLevelSpellSlotIPrepared{False}
-
-\FirstLevelSpellSlotJ{Identify (鉴定术 100GP珍珠)} %豪宅中拾的法术书
-\FirstLevelSpellSlotJPrepared{False}
-
-\FirstLevelSpellSlotK{Alarm (警报术) 仪式} %1级
-\FirstLevelSpellSlotKPrepared{False}
-
-\FirstLevelSpellSlotL{Comprehend Languages (通晓语言)} %2级
-\FirstLevelSpellSlotLPrepared{False}
-
-\FirstLevelSpellSlotM{Fog Cloud (云雾术)} %3级
-\FirstLevelSpellSlotMPrepared{False}
-
-\FirstLevelSpellSlotN{Disguise Self (易容术) 幻术} %豪宅中拾的法术书
-\FirstLevelSpellSlotNPrepared{False}
-
-\FirstLevelSpellSlotO{Protection from Evil and Good (防护善恶)} %豪宅中拾的法术书
-\FirstLevelSpellSlotOPrepared{False}
-
-%秘法锁2, 羽落术1, 马友夫强酸箭2, 死者交谈3, 隐形仆役1, 吸血鬼之触3
 
 % --- 2环 法术 (2nd Level Spells) ---
 \SecondLevelSpellSlotsTotal{3}
 \SecondLevelSpellSlotsExpended{□□□}
 
-\SecondLevelSpellSlotA{Phantasmal Force (魅影之力) 幻术, 专注} %幻术学者3
-\SecondLevelSpellSlotAPrepared{True}
-% 你试图向施法距离内你可见的一名生物脑内植入一段幻术。目标进行一次智力豁免。豁免失败时，你创造出一个不大于10尺立方且只能被目标感知到的魅影物件，生物或其他你指定的现象。魅影将持续至法术终止。该魅影包括声音、温度和其他感官因素。目标可以用研究动作进行一次对抗你法术豁免DC的智力（调查）检定来仔细研究这个魅影。检定成功则目标意识到魅影是一道幻术，法术终止。目标受法术影响期间会认定魅影是真实的，并且会合理化任何与其互动产生的不合逻辑的结果。例如，若目标试图走过一座跨越峡谷的魅影桥时从桥上坠落并存活，它仍然会相信该桥是真实存在的，并且会觉得是其他什么东西导致了自己的坠落。若魅影代表着一名危险生物或一处灾害，则受术目标甚至还会受到幻术的直接伤害。在每个你的回合中，若目标在魅影区域内或距其5尺范围内，则上述形态的魅影可以对目标造成2d8点心灵伤害。而此时目标则会感觉该伤害类型与魅影适于造成的一种伤害类型相符。
+% 出门必备
+\spellMKQ{2}{A}{Phantasmal Force}{魅影之力}{120ft,\faMask\faBrain}{True}
+\spellMKQ{2}{B}{Hold Person}{定身类人}{1+n个人}{False}
+
+% 有用的防御魔法
+\spellMKQ{2}{C}{Misty Step}{迷踪步}{30ft,附赠}{True}
+\spellMKQ{2}{D}{Mirror Image}{镜影术}{\faMask}{True}
+\spellMKQ{2}{E}{Invisibility}{隐形术}{\faBrain\faMask}{False}
+% \spellMKQ{2}{}{Elminster's Elusion}{伊尔明斯特的法术闪避}{附赠}{False}
+
+% 或许有用的攻击魔法
+\spellMKQ{2}{F}{Cloud of Daggers}{匕首之云}{60ft,4d4+2d4xn\faBrain}{False}
+\spellMKQ{2}{G}{Magic Weapon}{魔化武器}{+1,3-5环+2,+3,触碰,附赠}{False}
+
+% 或许有用的魔法
+\spellMKQ{2}{H}{Knock}{敲击术}{大声敲击}{False}
+\spellMKQ{2}{I}{Arcane Lock}{秘法锁}{25gp}{False}
+\spellMKQ{2}{J}{Gift of Gab}{巧舌如簧}{2gp,反应}{False}
+
+% 无需准备
+\spellMKQ{2}{K}{Augury}{卜筮术}{\faBahai}{False}
+\spellMKQ{2}{L}{Magic Mouth}{魔嘴术}{\faMask\faBahai}{False}
+
+% 貌似没用
+\spellMKQ{2}{M}{Darkvision}{黑暗视觉}{8h,150ft}{False}
 
 
-\SecondLevelSpellSlotC{Cloud of Daggers (匕首之云)} %4级
-\SecondLevelSpellSlotCPrepared{False}
-
-\SecondLevelSpellSlotD{Mirror Image (镜影术) 幻术} %4级
-\SecondLevelSpellSlotDPrepared{True}
-% 镜影术｜Mirror Image
-%
-% 二环 幻术（吟游诗人、术士、魔契师、法师）
-% 施法时间：动作
-% 施法距离：自身
-% 法术成分：V、S
-% 持续时间：1分钟
-% 三个你自身的幻象分身出现在你所处的空间中。直到法术终止前，分身都会随你移动，并模仿你的动作和位置变换，使人无法追踪判断哪一个是你的真身。
-% 在法术持续时间内，每当一个生物攻击命中你时，为每个剩余分身投掷一个d6，只要有任一d6骰出3或以上，一个分身代你承受本次命中并随之被摧毁。分身无视所有其他的伤害和效应。三个分身都被摧毁时，法术随之结束。
-% 如果一名生物处于目盲状态，或拥有盲视，或拥有真实视觉，则该法术无法影响该生物。
-
-\SecondLevelSpellSlotE{Cloud of Daggers (卜筮术) 仪式} %诸事无常地精教的
-\SecondLevelSpellSlotEPrepared{False}
-
-\SecondLevelSpellSlotF{Darkvision (黑暗视觉)} %豪宅中拾的法术书
-\SecondLevelSpellSlotFPrepared{False}
-
-\SecondLevelSpellSlotG{Hold Person (人类定身术) 专注} %豪宅中拾的法术书
-\SecondLevelSpellSlotGPrepared{False}
-
-\SecondLevelSpellSlotH{Invisibility (隐形术) 触碰 升环} %豪宅中拾的法术书
-\SecondLevelSpellSlotHPrepared{False}
-
-\SecondLevelSpellSlotI{Magic Weapon (魔化武器) 附赠} %豪宅中拾的法术书
-\SecondLevelSpellSlotIPrepared{False}
-
-\SecondLevelSpellSlotJ{Misty Step (迷踪步) 附赠} %3
-\SecondLevelSpellSlotJPrepared{True}
-%
-% 迷踪步｜Misty Step
-%
-% 二环 咒法（术士、魔契师、法师）
-% 施法时间：附赠动作
-% 施法距离：自身
-% 法术成分：V
-% 持续时间：立即
-% 你短暂地被银白的雾气所笼罩，传送到至多30尺内一个你能看见且未占据空间。
-
-\SecondLevelSpellSlotK{Magic Mouth (魔嘴术) 仪式} %购买
-\SecondLevelSpellSlotKPrepared{False}
-
-% 魔嘴术｜Magic Mouth
-%
-% 二环 幻术（吟游诗人、法师、奇械师）
-% 施法时间：1分钟或仪式
-% 施法距离：30尺
-% 法术成分： V、S、M（价值10GP+的玉粉，作为法术耗材）
-% 持续时间：直到被解除
-% 你将一段信息植入施法距离内的一个物件中，其信息会在满足预设事件时说出。指定一个你能看见且未被另一生物穿着或携带的物件。然后，你可以使用至多10分钟来传达这段不超过25个字的信息。最后再来设定触发法术传达信息的事件。预设的事件发生时，目标物件上出现一张魔法嘴，并用与你相同的声音和音量复述所存储的信息。如果你指定的目标本身有一张嘴或者类似嘴的结构（例如雕像的嘴），则魔法嘴将生成在该嘴结构的位置，使其看起来如同是物件的嘴在说话一样。施展该法术时，你可以让法术在传达过信息后随即终止，或者也可以让法术一直持续并在每次被预设条件触发时进行复述。你所决定的触发条件可以很概括也可以很具体，不过你只能根据目标物件30尺内的视觉或听觉状况来设定条件。例如，你可以命令魔嘴在任何生物移动至物件30尺内时说出信息，或者当其30尺内有银铃响起时说出信息。
-
-\SecondLevelSpellSlotB{Summon Beast (野兽召唤) 免费/长休, 幻术, 升环} %魅影生灵 Phantasmal Creatures
-\SecondLevelSpellSlotBPrepared{True} %always true
-%持续时间：专注，至多1小时
-
-%你唤来一个野兽灵魄。其使用下文野兽灵魄的数据，并会在施法距离内一处你可见的未占据空间中显现。当你施展法术时，从天空、大地和海洋中选择一个环境。该生物会显化符合为你所选的环境的形态，其数据中的部分特性也受此影响。该生物会在生命值降为0或是法术结束时消失。
-%该生物是你的盟友（对你的其他盟友亦是如此）。它在战斗中使用你的先攻，并在你回合结束后立即行动。它遵从于你的口头指令（无需任何动作）。如果你不发令，它将执行回避动作并用移动力远离危险。
-
-%% 特质Traits
-
-%% 飞掠Flyby（仅天空）。灵魄飞行离开敌人的触及范围时不会引发借机攻击。
-%% 集群战术Pack Tactics（仅大地与海洋）。若灵魄的攻击目标生物5尺内存在有至少一名灵魄未失能的盟友，则灵魄对该生物进行的攻击检定具有优势。
-%% 水下呼吸Water Breathing（仅海洋）。灵魄只能在水下呼吸。
-%% 动作Actions
-
-%% 多重攻击Multiattack。灵魄发动等于法术环阶一半次数的撕裂攻击（向下取整）。
-%% 撕裂Rend。近战攻击检定：加值等于你的法术攻击加值，触及5尺。命中：1d8+4+法术环阶的挥砍伤害。 
-\SecondLevelSpellSlotL{Arcane Lock (秘法锁)} %基尔凯纳之龙
-\SecondLevelSpellSlotLPrepared{False}
-
-% 秘法锁｜Arcane Lock
-%
-% 二环 防护（法师、奇械师）
-% 施法时间：动作
-% 施法距离：触碰
-% 法术成分：V、S、M（价值25GP+的金粉，作为法术耗材）
-% 持续时间：直到被解除
-% 你触碰一个关着的门、窗、容器或出入口，并使目标在法术持续时间内被魔法上锁。秘法锁无法被任何非魔法方式解锁。在你施展法术时你可以选择允许一些其他生物，你和受你允许的生物能够无视秘法锁打开/关闭该物件。你还可以设置一条密语，在该物件5尺内念出密语时，秘法锁将被解锁（持续1分钟）。
-
-
-
-%\SecondLevelSpellSlotL{} %卷轴
-%\SecondLevelSpellSlotLPrepared{False}
-
-%\SecondLevelSpellSlotL{Nathair's Mischief (纳撒尔恶作剧) 专注} %7级法师
-%\SecondLevelSpellSlotLPrapared{False}
-% 纳撒尔恶作剧｜Nathair's Mischief
-%
-% 二环 幻术（吟游诗人、术士、法师）
-% 施法时间：1动作
-% 施法距离：60尺
-% 法术成分：S、M（一块面包皮，来自一个苹果派）
-% 持续时间：专注，至多一分钟
-% 你选择一个以施法范围内一点为原点，20尺矩形的范围。你在该范围内填满妖精与龙族的魔法。在恶作剧之涌表格里掷骰以决定产生的魔法效应。法术持续时间内、在你的每个回合开始时，你都重骰这个表格。在你重骰之前，你可以把这个矩形范围移动最多10尺。
-%
-%     恶作剧之涌
-%     d4    	效应
-%     1    	空气中弥漫着苹果派的味道，范围内的生物必须成功通过一次感知豁免，否则将被你魅惑，直至你的下回合开始。
-%     2    	一束束鲜花出现在四周，范围内的生物必须成功通过一次敏捷豁免，否则鲜花将往他们脸上喷水，使他们陷入目盲，直至你的下回合开始。
-%     3    	范围内的每个生物必须成功通过一次感知豁免，否则将开始咯咯笑，直至你的下回合开始。一个正在咯咯笑的生物陷入失能，并使用他的所有移动力向一个随机方向移动。
-%     4    	一滴滴蜜糖出现并在矩形内悬停，将其内变成困难地形，直至你的下回合开始。
-
-\SecondLevelSpellSlotM{Melf's Acid Arrow (马友夫强酸箭)} %基尔凯纳之龙
-\SecondLevelSpellSlotMPrepared{False}
-%
-% 马友夫强酸箭｜Melf's Acid Arrow
-%
-% 二环 塑能（法师）
-% 施法时间：动作
-% 施法距离：90尺
-% 法术成分：V、S、M（大黄粉）
-% 持续时间：立即
-% 一支闪烁的绿色箭矢朝一个施法距离内的目标疾速飞去，并炸裂成一滩强酸。对目标进行一次远程法术攻击。若命中，则目标受到4d4点强酸伤害，然后再其下一回合结束时再受到2d4点强酸伤害。若未命中，则箭矢的酸液溅射目标，造成初始伤害一半的伤害。
-% 升环施法。使用的法术位每比二环高一环，此法术伤害（包括初始和后续）增加1d4。
 
 % --- 3环 法术 (3rd Level Spells) ---
 \ThirdLevelSpellSlotsTotal{3}
@@ -507,7 +427,7 @@
 \ThirdLevelSpellSlotC{Major Image (高级幻影) 幻术, 升环, 专注} %幻术学者5
 \ThirdLevelSpellSlotCPrepared{True}
 % 高级幻影｜Major Image
-%
+% 
 % 三环 幻术（吟游诗人、术士、魔契师、法师）
 % 施法时间：动作
 % 施法距离：120尺
@@ -541,9 +461,9 @@
 
 \ThirdLevelSpellSlotF{Fear (恐惧术) 幻术,专注} %6级法师
 \ThirdLevelSpellSlotFPrepared{False}
-%持续时间：专注，至多1分钟
-%30尺锥状区域内的所有生物必须通过一次感知豁免，豁免失败者将丢弃其所有持握物，并在法术持续时间内陷入恐慌状态。
-%以此法被恐慌的生物必须在自己回合中执行疾走动作，并以此寻找最安全的路线远离你，直至其无路可走为止。如果该生物结束其回合时位于一处使其视觉线中没有你的空间，则其可以再进行一次感知豁免，豁免成功则法术对该生物的效应终止。
+% 持续时间：专注，至多1分钟
+% 30尺锥状区域内的所有生物必须通过一次感知豁免，豁免失败者将丢弃其所有持握物，并在法术持续时间内陷入恐慌状态。
+% 以此法被恐慌的生物必须在自己回合中执行疾走动作，并以此寻找最安全的路线远离你，直至其无路可走为止。如果该生物结束其回合时位于一处使其视觉线中没有你的空间，则其可以再进行一次感知豁免，豁免成功则法术对该生物的效应终止。
 
 \ThirdLevelSpellSlotG{Sending (短讯术)} %6级法师
 \ThirdLevelSpellSlotGPrepared{False}
@@ -554,7 +474,7 @@
 \ThirdLevelSpellSlotH{Phantom Steed (魅影驹) 幻术,仪式} %6级幻术师
 \ThirdLevelSpellSlotHPrepared{False}
 % 魅影驹｜Phantom Steed
-%
+% 
 % 三环 幻术（法师）
 % 施法时间：1分钟或仪式
 % 施法距离：30尺
@@ -567,7 +487,7 @@
 \ThirdLevelSpellSlotIPrepared{False}
 
 % 死者交谈｜Speak with Dead
-%
+% 
 % 三环 死灵（吟游诗人、牧师、法师）
 % 施法时间：动作
 % 施法距离：10 尺
@@ -579,9 +499,9 @@
 
 % \ThirdLevelSpellSlotJ{Vampiric Touch (死者交谈)} %6级幻术师
 % \ThirdLevelSpellSlotJPrepared{False}
-%
+% 
 % 汲血之触｜Vampiric Touch
-%
+% 
 % 三环 死灵（术士、魔契师、法师）
 % 施法时间：动作
 % 施法距离：自身
@@ -608,7 +528,7 @@
 \FourthLevelSpellSlotB{Greater Invisibility (高等隐形术) 专注} %7级幻术师
 \FourthLevelSpellSlotBPrepared{True}
 % 高等隐形术｜Greater Invisibility
-%
+% 
 % 四环 幻术（吟游诗人、术士、法师）
 % 施法时间：动作
 % 施法距离：触碰
@@ -639,7 +559,7 @@
 \FifthLevelSpellSlotB{Greater Invisibility (假象术) 专注} %7级幻术师
 \FifthLevelSpellSlotBPrepared{True}
 % 高等隐形术｜Greater Invisibility
-%
+% 
 % 四环 幻术（吟游诗人、术士、法师）
 % 施法时间：动作
 % 施法距离：触碰
@@ -651,11 +571,11 @@
 \FifthLevelSpellSlotBPrepared{True}
 
 
-\newcommand{\spellsheetchoice}{\renderspellsheet}
+\newcommand{\spellsheetchoice}{\renderhalfspellsheet}
 
 
 
-\begin{document}
+% \begin{document}
 \newgeometry{left=0cm,right=0cm,top=0cm,bottom=0cm}
 \onecolumn
 
@@ -673,209 +593,6 @@
 \pdfbookmark[0]{Spellcasting Sheet}{Spellcasting Sheet}
 \spellsheetchoice
 
-
-% --- 0环 戏法 (Cantrips) ---
-\CantripSlotA{}
-\CantripSlotB{}
-\CantripSlotC{}
-\CantripSlotD{}
-\CantripSlotE{}
-\CantripSlotF{}
-\CantripSlotG{}
-\CantripSlotH{}
-\CantripSlotI{}
-\CantripSlotJ{}
-\CantripSlotK{}
-% --- 1环 法术 (1st Level Spells) ---
-\FirstLevelSpellSlotsTotal{4}
-\FirstLevelSpellSlotsExpended{□□□□}
-\FirstLevelSpellSlotA{Disguise Self (易容术) 幻术} %豪宅中拾的法术书
-\FirstLevelSpellSlotAPrepared{False}
-% 易容术｜Disguise Self
-%
-% 一环 幻术（吟游诗人、术士、法师、奇械师）
-% 施法时间：动作
-% 施法距离：自身
-% 法术成分：V、S
-% 持续时间：1小时
-% 你改变自身以及随身的衣物、护甲、武器等在你身上的所有物。该效应在法术终止时结束。肉眼看来你的身高可以有1尺的增减，体态可胖可瘦。你必须选择一个和你肢体基础排列方式一致的形态。此外，幻术的影响范围由你决定。
-% 此法术产生的变化无法应对物理检查。比如，你用此法术添了一顶帽子，那么现实物件会从帽子穿过去，且任何触碰帽子的人将摸不到任何东西。
-% 如果一名生物想要分辨你是否易容，则必须使用一个研究动作研究你的外貌，并成功于一次对抗你法术豁免DC的智力（调查）检定。
-
-\FirstLevelSpellSlotB{Protection from Evil and Good (防护善恶)} %豪宅中拾的法术书
-\FirstLevelSpellSlotBPrepared{False}
-% 防护善恶｜Protection from Evil and Good
-%
-% 一环 防护（牧师、德鲁伊、圣武士、魔契师、法师）
-% 施法时间：动作
-% 施法距离：触碰
-% 法术成分：V、S、M（一瓶25GP+的圣水，作为此法术的耗材）
-% 持续时间：专注，至多10分钟
-% 法术结束前，你使触碰的一名自愿生物获得针对下述生物类型的防护：异怪、天族、元素、妖精、邪魔、亡灵。
-% 此防护提供下述几种增益。上述生物类型的生物对目标的攻击检定具有劣势。目标不能被其附身，也不会因其陷入魅惑或恐慌状态。如果目标已经被具有上述生物类型的生物附身，或其魅惑或恐慌状态影响，目标后续进行的相关效应的豁免检定也将具有优势。
-\FirstLevelSpellSlotC{Silent Image (无声幻影) 幻术, 专注} %购买
-\FirstLevelSpellSlotCPrepared{True}
-% 无声幻影｜Silent Image
-%
-% 一环 幻术（吟游诗人、术士、法师）
-% 施法时间：动作
-% 施法距离：60 尺
-% 法术成分：V、S、M（少量羊毛）
-% 持续时间：专注，至多 10 分钟
-% 你创造一个影像，其形象来自一个大小不超过边长 15 尺立方体的物件，生物或其他的可视现象。影像出现在施法距离内的一处位置并在法术持续时间内持续存在。该影像是纯粹的视觉影像；它不会被听觉，嗅觉或其他感官感受到。
-% 你可以使用魔法动作将影像移动到施法距离内的另一个位置。影像改变位置时，你可以改变影像的外观使其移动得更自然。例如，如果你创造了一个生物的影像并移动它，则你可以改变影像，使它看起来就像是在走路。
-% 由于影像无法被碰到，任何与该影像进行的物理互动都会暴露其幻象的本质。一个生物使用研究动作调查影像时，它可以进行一次对抗法术豁免 DC 的智力（调查）检定。辨出幻象的生物可以看破该影像，在该生物看来会透过影像看到其背后的事物。
-
-\FirstLevelSpellSlotD{Distort Value (扭曲价值) 幻术} %7级法师
-\FirstLevelSpellSlotDPrepared{False}
-% 扭曲价值｜Distort Value
-%
-% 一环 幻术（吟游诗人、术士、魔契师、法师）
-% 施法时间：1 分钟
-% 施法距离：触碰
-% 法术成分：V
-% 持续时间：8 小时
-% 当你试图卖掉从混沌神殿中解放出来的那座奇异章鱼雕像时，你是否需要从那个无良商人口袋里再压榨几块黄金？当收税员驻足你的身前时，你是否需要贬低一些魔法资产的价值呢？扭曲价值法术为你保驾护航。
-% 你施展此法术于边长不超过 1 尺的一个物件上，以幻术的滋养和抛光来加倍它看起来的价值，或者是用虚幻的划痕、凹陷和其他不雅的特征来减半它看起来的价值。任何检查物件的人，可以通过智力（调查）检定对抗你的法术 DC，若成功将会确定它的真实价值。
-% 升环施法。当你使用二环或更高的法术位施放该法术时，使用的法术位每高一环，目标物件的最大尺寸就可以增加 1 尺。
-
-\FirstLevelSpellSlotE{Feather Fall (羽落术) 反应} %基尔凯纳之龙
-\FirstLevelSpellSlotEPrepared{False}
-
-% 羽落术｜Feather Fall
-%
-% 一环 变化（吟游诗人、术士、法师、奇械师）
-% 施法时间：反应，你或距你60尺内的可见生物坠落时可用
-% 施法距离：60尺
-% 法术成分：V、M（一小根羽毛或一块羽绒）
-% 持续时间：1分钟
-% 指定施法距离内至多五个正坠落的生物。受术生物的坠落速度在法术持续时间内降低至每回合60尺。如果该生物在法术终止前落地，则其不会受到任何坠落伤害，且着地后法术对该生物的效应随即终止。
-
-\FirstLevelSpellSlotF{Unseen Servant (隐形仆役) 仪式}
-\FirstLevelSpellSlotFPrepared{False}
-
-% 隐形仆役｜Unseen Servant
-%
-% 一环 咒法（吟游诗人、魔契师、法师）
-% 施法时间：动作或仪式
-% 施法距离：60尺
-% 法术成分：V、S、M（一些线和木头）
-% 持续时间：1小时
-% 该法术创造出一个隐形、无心智、无定形的中型力场。你可以在法术终止前命令它进行简单的工作。该仆役被创造出来后出现在施法距离内一处未占空间的地面上。其AC为10，具有1生命值，力量为2，且不能攻击。若仆从的生命值降至 0，则法术终止。
-% 在每个自己回合内以一个附赠动作 ，你可以精神性的对仆役下达一道命令，使其移动至多15尺并与一个物件进行互动。仆役可以做人类能做到的简单工作，例如拿取东西、打扫卫生、修补东西、叠衣服、点火、上菜、倒饮料等。一旦你下达了命令，仆役就会尽全力去进行任务直至完成任务，并在此后等待你的下一个命令。
-% 如果你命令仆役做一件需要它离开你身边60尺的工作，则法术终止。
-
-\FirstLevelSpellSlotG{繁彩球}
-\FirstLevelSpellSlotGPrepared{False}
-
-\FirstLevelSpellSlotH{}
-\FirstLevelSpellSlotHPrepared{False}
-
-\FirstLevelSpellSlotI{}
-\FirstLevelSpellSlotIPrepared{False}
-
-\FirstLevelSpellSlotJ{}
-\FirstLevelSpellSlotJPrepared{False}
-
-\FirstLevelSpellSlotK{}
-\FirstLevelSpellSlotKPrepared{False}
-
-\FirstLevelSpellSlotL{}
-\FirstLevelSpellSlotLPrepared{False}
-
-\FirstLevelSpellSlotM{}
-\FirstLevelSpellSlotMPrepared{False}
-
-
-% --- 2环 法术 (2nd Level Spells) ---
-\SecondLevelSpellSlotsTotal{3}
-\SecondLevelSpellSlotsExpended{□□□}
-
-\SecondLevelSpellSlotA{}
-\SecondLevelSpellSlotAPrepared{False}
-
-\SecondLevelSpellSlotB{}
-\SecondLevelSpellSlotBPrepared{False}
-
-\SecondLevelSpellSlotC{}
-\SecondLevelSpellSlotCPrepared{False}
-
-\SecondLevelSpellSlotD{}
-\SecondLevelSpellSlotDPrepared{False}
-
-\SecondLevelSpellSlotE{}
-\SecondLevelSpellSlotEPrepared{False}
-
-\SecondLevelSpellSlotF{}
-\SecondLevelSpellSlotFPrepared{False}
-
-\SecondLevelSpellSlotG{}
-\SecondLevelSpellSlotGPrepared{False}
-
-\SecondLevelSpellSlotH{}
-\SecondLevelSpellSlotHPrepared{False}
-
-\SecondLevelSpellSlotI{}
-\SecondLevelSpellSlotIPrepared{False}
-
-\SecondLevelSpellSlotJ{}
-\SecondLevelSpellSlotJPrepared{False}
-
-\SecondLevelSpellSlotK{}
-\SecondLevelSpellSlotKPrepared{False}
-
-\SecondLevelSpellSlotL{}
-\SecondLevelSpellSlotLPrepared{False}
-
-\SecondLevelSpellSlotM{}
-\SecondLevelSpellSlotMPrepared{False}
-
-% --- 3环 法术 (3rd Level Spells) ---
-\ThirdLevelSpellSlotsTotal{3}
-\ThirdLevelSpellSlotsExpended{□□□}
-
-\ThirdLevelSpellSlotA{}
-\ThirdLevelSpellSlotAPrepared{False}
-
-\ThirdLevelSpellSlotB{}
-\ThirdLevelSpellSlotBPrepared{False}
-
-\ThirdLevelSpellSlotC{}
-\ThirdLevelSpellSlotCPrepared{False}
-
-\ThirdLevelSpellSlotD{} %购买
-\ThirdLevelSpellSlotDPrepared{False}
-
-\ThirdLevelSpellSlotE{} %购买
-\ThirdLevelSpellSlotEPrepared{False}
-
-\ThirdLevelSpellSlotF{} %购买
-\ThirdLevelSpellSlotFPrepared{False}
-
-\ThirdLevelSpellSlotG{} %购买
-\ThirdLevelSpellSlotGPrepared{False}
-
-\ThirdLevelSpellSlotH{} %购买
-\ThirdLevelSpellSlotHPrepared{False}
-
-\ThirdLevelSpellSlotI{} %购买
-\ThirdLevelSpellSlotIPrepared{False}
-
-\ThirdLevelSpellSlotJ{} %购买
-\ThirdLevelSpellSlotJPrepared{False}
-
-\ThirdLevelSpellSlotK{} %购买
-\ThirdLevelSpellSlotKPrepared{False}
-
-\FourthLevelSpellSlotsTotal{2}
-\FourthLevelSpellSlotsExpended{□□}
-\FourthLevelSpellSlotA{}
-\FourthLevelSpellSlotAPrepared{False}
-\FourthLevelSpellSlotB{}
-\FourthLevelSpellSlotBPrepared{False}
-
-\pdfbookmark[0]{Spellcasting Sheet}{Spellcasting Sheet}
-\spellsheetchoice
 
 
 \end{document}
