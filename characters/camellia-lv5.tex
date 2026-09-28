@@ -1,0 +1,393 @@
+% !TeX program = lualatex
+% Camellia | 5r / 2026 | 10级角色的5级版本
+% 原文件名虽为lv8、职业栏仍写9级，本版按用户明确指定的10级回退。
+% 属性假定：原卡唯一列出的“属性值提升”为8级智力+2；
+% 4级保留仪式施法者（智力+1），因此本版智力18。
+% HP按用户要求采用严格数学期望：6 + 4*3.5 + 5*1 = 25。
+% 若团内“取期望”指规则固定值d6取4，将下方25改成27即可。
+% 法术书最低数：10级=6+9*2+5=29；5级=6+4*2+3=17；差12。
+% 删除原卡12道四/五环法术，保留44道一至三环法术（17+27额外）。
+% 6级召唤特性、专长仪式、戏法均单独核算，不混入上述法术书计数。
+
+\documentclass[letterpaper,openany,twoside,twocolumn]{book}
+\usepackage{bookmark}
+% 原工程有dnd.sty时保持原样式；没有时仅加载角色卡所需的基础包。
+\IfFileExists{dnd.sty}{\usepackage[justified]{dnd}}{\usepackage{tikz}}
+\usepackage{ifthen}
+\usepackage{geometry}
+\usepackage{pstricks}
+\usepackage{fontawesome5}
+\usepackage{multicol}
+\usepackage{amssymb}
+% 最小中文TeX环境也可使用Fandol作为LuaTeX-ja的初始化字体。
+\makeatletter
+\IfFileExists{HaranoAjiMincho-Regular.otf}{}{\def\ltj@stdmcfont{file:FandolSong-Regular.otf}}
+\IfFileExists{HaranoAjiGothic-Medium.otf}{}{\def\ltj@stdgtfont{file:FandolHei-Regular.otf}}
+\makeatother
+\usepackage{dndtemplate}
+\usepackage{luatexja-fontspec}
+\hypersetup{pdftitle={Camellia - Level 5 Illusionist (5r)},pdfsubject={Character sheet}}
+
+\IfFontExistsTF{Yozai-Medium}{
+  \setmainjfont[UprightFont=*-Medium,BoldFont=*-Medium,
+    BoldFeatures={FakeBold=2.5}]{Yozai}
+}{
+  \setmainjfont[BoldFont=FandolHei-Bold.otf]{FandolKai-Regular.otf}
+}
+\IfFontExistsTF{Abydos}{\setmainfont{Abydos}}{\setmainfont{Latin Modern Roman}}
+
+% 四个必填参数：环阶、英文名、中文名、附注；每环自动使用 A/B/C… 行。
+% 末尾可加[True]/[False]：锁定勾选/未勾选，且排除准备计数；省略可自由切换。
+\usepackage{mkq-interactive}
+% 初次生成 PDF 时的默认准备状态；之后可直接在 PDF 中勾选。
+\PrepareSpellsMKQ{Shield,Mage Armor,Absorb Elements,Phantasmal Force,Misty Step,Mirror Image,Counterspell,Major Image,Fireball}
+% 统计上限；始终准备的三道专长法术在对应条目末尾写[True]。
+\PreparedLimitMKQ{9}
+
+% 基本资料
+\CharacterName{Camellia (卡梅)}
+\Class{幻术师 5}
+\Background{骗子}
+\PlayerName{was mkq}
+\Race{人类}
+\Alignment{混沌善良}
+\XP{Milestone (里程碑)}
+
+\StrengthScore{12}
+\DexterityScore{14}
+\ConstitutionScore{13}
+\IntelligenceScore{18}
+\WisdomScore{11}
+\CharismaScore{18}
+
+\StrengthModifier{1}
+\DexterityModifier{2}
+\ConstitutionModifier{1}
+\IntelligenceModifier{4}
+\WisdomModifier{0}
+\CharismaModifier{4}
+
+% 5级熟练加值+3；智力与感知豁免熟练。
+\StrengthSavingThrowModifier{1}
+\DexteritySavingThrowModifier{2}
+\ConstitutionSavingThrowModifier{1}
+\IntelligenceSavingThrowModifier{7}
+\WisdomSavingThrowModifier{3}
+\CharismaSavingThrowModifier{4}
+
+\AcrobaticsSkillModifier{2}
+\AnimalHandlingSkillModifier{0}
+\ArcanaSkillModifier{10} % 智力4 + 奥秘专精2*3
+\AthleticsSkillModifier{1}
+\DeceptionSkillModifier{7}
+\HistorySkillModifier{7}
+\InsightSkillModifier{3}
+\IntimidationSkillModifier{7}
+\InvestigationSkillModifier{7}
+\MedicineSkillModifier{0}
+\NatureSkillModifier{7}
+\PerceptionSkillModifier{0}
+\PerformanceSkillModifier{7}
+\PersuasionSkillModifier{7}
+\ReligionSkillModifier{7}
+\SleightOfHandSkillModifier{5}
+\StealthSkillModifier{2}
+\SurvivalSkillModifier{0}
+
+\SetStrengthProficiency{0}
+\SetDexterityProficiency{0}
+\SetConstitutionProficiency{0}
+\SetIntelligenceProficiency{1}
+\SetWisdomProficiency{1}
+\SetCharismaProficiency{0}
+\SetAcrobaticsProficiency{0}
+\SetAnimalHandlingProficiency{0}
+\SetArcanaProficiency{2}
+\SetAthleticsProficiency{0}
+\SetDeceptionProficiency{1}
+\SetHistoryProficiency{1}
+\SetInsightProficiency{1}
+\SetIntimidationProficiency{1}
+\SetInvestigationProficiency{1}
+\SetMedicineProficiency{0}
+\SetNatureProficiency{1}
+\SetPerceptionProficiency{0}
+\SetPerformanceProficiency{1}
+\SetPersuasionProficiency{1}
+\SetReligionProficiency{1}
+\SetSleightOfHandProficiency{1}
+\SetStealthProficiency{0}
+\SetSurvivalProficiency{0}
+
+\Inspiration{} % PDF 默认拥有英雄激励，原位置由原生表单覆盖。
+\newcommand{\MKQRenderCharacterFields}{%
+  \AddToShipoutPictureFG*{\AtPageLowerLeft{%
+    \MKQAtSheet{143.42533022}{869.816111585}{\MKQCheck[11pt]{heroic-inspiration}{true}{false}{英雄激励：勾选表示拥有}}%
+    \MKQAtSheet{301.9}{424.8}{\MKQCheck{used-arcane-recovery}{false}{false}{奥术回想：勾选表示已使用}}%
+    \MKQAtSheet{362.5}{424.8}{\MKQCheck{used-quick-ritual}{false}{false}{快速仪式：勾选表示已使用}}%
+    \MKQAtSheet{301.9}{404.8}{\MKQCheck{used-speak-with-plants}{false}{false}{植物交谈：勾选表示已使用}}%
+    \MKQAtSheet{467.33438832}{620.23745116}{\MKQCheck[10pt]{death-success-1}{false}{false}{死亡豁免成功1}}%
+    \MKQAtSheet{484.48238789}{620.23745116}{\MKQCheck[10pt]{death-success-2}{false}{false}{死亡豁免成功2}}%
+    \MKQAtSheet{501.63038746}{620.23745116}{\MKQCheck[10pt]{death-success-3}{false}{false}{死亡豁免成功3}}%
+    \MKQAtSheet{467.33438832}{600.23825166}{\MKQCheck[10pt]{death-failure-1}{false}{false}{死亡豁免失败1}}%
+    \MKQAtSheet{484.48238789}{600.23825166}{\MKQCheck[10pt]{death-failure-2}{false}{false}{死亡豁免失败2}}%
+    \MKQAtSheet{501.63038746}{600.23825166}{\MKQCheck[10pt]{death-failure-3}{false}{false}{死亡豁免失败3}}%
+    % 可输入数值：字段名、提示、初始值、宽、高、字号（后三项单位bp）。
+    \MKQAtSheet{407.99998987}{752.58358106}{\MKQNumberField{current-hit-points}{当前生命值}{}{145}{26}{22}}%
+    \MKQAtSheet{407.99998987}{684.10878302}{\MKQNumberField{temporary-hit-points}{临时生命值}{}{145}{26}{22}}%
+    \MKQAtSheet{325.27479187}{141.90639645}{\MKQNumberField{gold-pieces}{金币}{2490}{40}{16}{12}}%
+  }}%
+}
+\Proficiency{3}
+\Perception{10}
+\ArmorClass{15\\\tiny{法甲；平时12}}
+\Initiative{2}
+\Speed{30ft}
+\MaxHitPoints{25}
+\MaxHitDice{5d6}
+\CurrentHitDice{5}
+\CP{}
+\SP{}
+\GP{}
+\EP{}
+\PP{}
+
+\OtherProficienciesLanguages{\small
+  \begin{description}
+  \item[语言] 通用语、通用手语、精灵语；吉斯语学习中！
+  \item[武器熟练] 简易武器
+  \item[随身物品] 匕首x2、奥术法器（长棍）、法术书x3（一本在家备用）
+  \item[施法材料] 一大堆()
+  \item[药水配方] 生命药水、勇气药水、炸药
+  \end{description}
+  {\footnotesize *是的，这个人不会近战，并没有开刃法术书。}
+}
+
+% 仅保留指定的三件魔法装备；面具的原卡信息只有DC14，不补造次数。
+\Equipment{\scriptsize
+  \begin{description}
+  \item[心灵护盾戒指~\faLock] 同调。阻止特定读心与识别魔法；心灵感应须经允许；可储存佩戴者的灵魂。
+  \item[塔莎狂笑术面具] 法术豁免DC14；其余使用规则沿用团内道具说明。
+  \item[造风之扇] 造风术，DC13；首次使用后，黎明前再次使用有累积20\%失效并损毁概率。
+  \end{description}
+}
+
+\PersonalityTraits{\small
+  I USE FIREBALL!!!!\\
+  冒险都是翘班出来冒的\\
+}
+\Ideals{\small
+  建个法师塔！不想建法师塔的法师不是好法师！\\
+}
+\Bonds{\scriptsize
+  因为和学校各个大佬处得不错，一定会有人愿意给死掉的卡梅丢个复生术的吧，一定卡梅被绑架了会有人带钱来赎人吧x\\
+  风骸岛6君子里面的咕咕嘎嘎\\
+}
+\Flaws{\scriptsize
+  注意力涣散的天才法师：在学校光速地学会法术的主要原理后便无心了解细节问题，施展出的法术偶尔会出现奇怪的效果，目前在银月城有延毕风险。\\
+  对说话的气氛缺少把握，低感知人。\\
+}
+
+\FeaturesTraits{\scriptsize
+  \begin{description}
+  \item[起源专长] 熟习x2（骗子背景、人类）；保留原卡技能。
+  \item[4级专长] 仪式施法者，智力+1（已计入18）。
+  \item[仪式魔法] 始终准备谭森浮碟、隐形仆役、动物交谈；不占9道法师准备名额。
+  \item[快速仪式] 每长休一次，以通常施法时间施展已准备的仪式法术，不消耗法术位。
+  \item[仪式学家] 阅读法术书，可仪式施展书中的仪式法术，无需准备。
+  \item[学者] 奥秘专精，检定+10。
+  \item[戏法] 4道法师戏法，另获次级幻象；每长休可换1道职业戏法。
+  \item[记忆法术] 完成短休，替换1道由施法特性准备的法术。
+  \item[奥术回想] 每长休一次，在短休结束时恢复法术位，环阶总和至多3。
+  \item[幻术学者] 3级免费入书2道一/二环幻术，5级再入书1道三环幻术。
+  \item[强化幻术] 幻术无需言语；原施法距离至少10尺时+60尺。次级幻象可附赠施展，同时含声音与影像。
+  \item[人类] 长休获得英雄激励。
+  \item[植物] 化身植物人对着花儿甜言蜜语（每日一次；保留原卡冒险能力）。
+  \end{description}
+}
+
+% 快速索引。仪式标签不代表可以随意以通常时间免费施法。
+\AddWeapon{次级幻象~\faMask}{附赠}{90ft/1min}
+\AddWeapon{植物交谈}{每日}{10min}
+\AddWeapon{谭森浮碟~\faBahai}{仪式}{1h}
+\AddWeapon{隐形仆役~\faBahai}{仪式}{1h}
+\AddWeapon{动物交谈~\faBahai}{仪式}{10min}
+\AttacksAdditional{\scriptsize
+  \textbf{资源使用记录}（勾选＝已使用）\\[2pt]
+  \hspace*{8pt}\enspace 奥术回想\quad
+  \hspace*{8pt}\enspace 快速仪式\\[3pt]
+  \hspace*{8pt}\enspace 植物交谈
+}
+
+\Age{35}
+\Height{1.7m}
+\Weight{60kg}
+\Eyes{Blue}
+\Skin{White}
+\Hair{Magical Green!}
+\CharacterAppearance{
+  \IfFileExists{characters/images/photo_2026-02-08_18-22-17.jpg}{
+    \includegraphics[width=5.75cm]{characters/images/photo_2026-02-08_18-22-17.jpg}
+  }{}
+  35岁，觉醒并立志成为异世界魔导师！\\\\
+  外貌描述：头发是绿的！蓝眼，白皙皮肤。
+}
+
+\AdditionalFeaturesAndTraits{\small
+  \textbf{5级施法速查}\\
+  法术位：一环4、二环3、三环2。\\
+  法师准备9道；仪式专长另有3道始终准备。\\
+  法术书44道：一环21、二环13、三环10。\\
+  法术豁免DC15，法术攻击+7。\\[4pt]
+  \textbf{常用防护}\\
+  法师护甲生效时AC15（持续8小时，不专注）；护盾术生效时再+5。\\
+  次级幻象无需专注；带\faBrain 的法术需要专注。\\[4pt]
+  \textbf{图例}\\
+  \faMask~幻术；\faBrain~专注；\faBahai~仪式。\\
+  法术名前实心圆表示已准备；“专长”三项始终准备。\\
+  英雄激励实心圆表示拥有；法术位和每日能力实心圆表示已消耗。\\
+  法术页实时显示准备数／上限；固定状态不计入。\\
+  HP25：1级取满，之后d6按数学期望3.5计算。
+}
+
+\Characterbackground{
+  35岁，是银月城学生。\\\\
+  曾与银羽城塞尔多建立友谊（Bear）。\\
+  修理了银月城理发店地下水管道\\
+  奇怪的大宅冒险\\
+  地精欧德乐温（短讯术）\\
+  青铜龙易拉罐（Ylagan）\\
+  星琉璃航站传送阵\\
+  星琉璃航站守卫：眼魔\\
+  吉斯扬基人骑士：凯拉（短讯术）\\
+  风骸岛6君子！罗盘蔷薇号\\
+  熏人洞窟\\\\
+  哈姆科斯特：死灵法师\\
+  % 想学的法术：塔莎心灵鞭、缓慢术、涅斯图魔法灵光。
+}
+
+\Treasure{\small
+  \begin{multicols}{2}
+  \begin{description}
+  \item[抄入新法术] 每环50gp、2h。
+  \item[复制自己的法术书] 每环10gp、1h。
+  \end{description}
+  \textbf{Others}: 文书伪造工具、易容工具、表演服装\\
+  赌具：暗号纸牌，羊毛长袍\\
+  纱布、蓝色红色永久染发剂、永久发胶\\
+  米老鼠头饰、带有美丽螺纹的贝类、黄铜龙牙、碎青铜龙骨\\
+
+  阿斯加特啦秘法：成年金属龙，封印1000年，灵魂种下烙印；破坏：外力破坏、巴哈姆特圣徽造成大伤害；代价：龙的身体和全部灵魂。
+  \end{multicols}
+}
+\AlliesAndOrganizations{}
+\OrganizationName{银月城法师学院}
+\OrganizationSymbol{
+  \IfFileExists{characters/images/lambda.png}{
+    \includegraphics[width=3.7cm,height=3.7cm,keepaspectratio]{characters/images/lambda.png}
+  }{\Huge\ensuremath{\lambda}}
+}
+
+\SpellcastingClass{幻术师 5；9+3}
+\SpellcastingAbility{INT}
+\SpellSaveDC{15}
+\SpellAttackBonus{+7}
+
+\begin{document}
+% 戏法：职业4道 + 强化幻术1道。均为当前可用的戏法。
+\CantripSlotA{Mage Hand (法师之手)}
+\CantripSlotB{Acid Splash (酸液飞溅) 2d6}
+\CantripSlotC{Prestidigitation (魔法伎俩)}
+\CantripSlotD{Fire Bolt (传讯术) 2d10}
+\CantripSlotE{Minor Illusion (次级幻象) \faMask}
+% 原卡另列的电爪、交友术、火焰箭列为长休替换候选，不同时算作已知。
+% 电爪如换入，5级伤害为2d8；换出的是职业戏法，不是次级幻象。
+
+\FirstLevelSpellSlotsTotal{4}
+\FirstLevelSpellSlotsExpended{}
+\UsedSlotsMKQ{1}{4}
+% 一环：原有法术书21道，准备3道。
+\spellMKQ{1}{Shield}{护盾术}{反应}
+\spellMKQ{1}{Mage Armor}{法师护甲}{8h}
+%\spellMKQ{1}{Expeditious Retreat}{脚底抹油}{\faBrain}
+%\spellMKQ{1}{Feather Fall}{羽落术}{反应}
+\spellMKQ{1}{Absorb Elements}{吸收元素}{反应}
+% 吸收元素：强酸、寒冷、火焰、闪电或雷鸣；保留原卡兼容扩展法术。
+%\spellMKQ{1}{Color Spray}{七彩喷射}{\faMask}
+%\spellMKQ{1}{Magic Missile}{魔法飞弹}{}
+%\spellMKQ{1}{Witch Bolt}{巫术箭}{\faBrain}
+\spellMKQ{1}{Chromatic Orb}{繁彩球}{}
+%\spellMKQ{1}{Jim's Magic Missile}{吉姆魔法飞弹}{}
+\spellMKQ{1}{Disguise Self}{易容术}{\faMask}
+\spellMKQ{1}{Silent Image}{无声幻影}{\faBrain\faMask}
+\spellMKQ{1}{Distort Value}{扭曲价值}{\faMask}
+\spellMKQ{1}{Detect Magic}{侦测魔法}{\faBrain\faBahai}
+%\spellMKQ{1}{Illusory Script}{迷幻手稿}{\faBahai\faMask}
+\spellMKQ{1}{Identify}{鉴定术}{\faBahai}
+\spellMKQ{1}{Alarm}{警报术}{\faBahai}
+\spellMKQ{1}{Find Familiar}{寻获魔宠}{\faBahai}
+\spellMKQ{1}{Fog Cloud}{云雾术}{\faBrain}
+%\spellMKQ{1}{False Life}{虚假生命}{}
+%\spellMKQ{1}{Protection from Evil and Good}{防护善恶}{\faBrain}
+% 仪式施法者：沿原卡顺序保留前三道；第四道通晓语言随PB4→3移除。
+% 这三道不计入44道法术书，也不占9道法师准备名额。
+\spellMKQ{1}{Tenser's Floating Disk}{谭森浮碟}{\faBahai~专长}[True]
+\spellMKQ{1}{Unseen Servant}{隐形仆役}{\faBahai~专长}[True]
+\spellMKQ{1}{Speak with Animals}{动物交谈}{\faBahai~专长}[True]
+
+\SecondLevelSpellSlotsTotal{3}
+\SecondLevelSpellSlotsExpended{}
+\UsedSlotsMKQ{2}{3}
+% 二环：原有13道，准备3道。
+\spellMKQ{2}{Phantasmal Force}{魅影之力}{\faMask\faBrain}
+%\spellMKQ{2}{Hold Person}{定身类人}{\faBrain}
+\spellMKQ{2}{Misty Step}{迷踪步}{附赠}
+\spellMKQ{2}{Mirror Image}{镜影术}{\faMask}
+\spellMKQ{2}{Invisibility}{隐形术}{\faBrain\faMask}
+%\spellMKQ{2}{Cloud of Daggers}{匕首之云}{\faBrain}
+%\spellMKQ{2}{Magic Weapon}{魔化武器}{附赠}
+\spellMKQ{2}{Knock}{敲击术}{}
+%\spellMKQ{2}{Arcane Lock}{秘法锁}{}
+\spellMKQ{2}{Gift of Gab}{巧舌如簧}{反应}
+%\spellMKQ{2}{Augury}{卜筮术}{\faBahai}
+\spellMKQ{2}{Magic Mouth}{魔嘴术}{\faMask\faBahai}
+%\spellMKQ{2}{Darkvision}{黑暗视觉}{触碰}
+
+\ThirdLevelSpellSlotsTotal{2}
+\ThirdLevelSpellSlotsExpended{}
+\UsedSlotsMKQ{3}{2}
+% 三环：去重后保留10道，准备3道；所有条目使用自动编号四参数宏。
+\spellMKQ{3}{Counterspell}{法术反制}{反应}
+\spellMKQ{3}{Hypnotic Pattern}{催眠图纹}{\faMask\faBrain}
+\spellMKQ{3}{Major Image}{高级幻影}{\faMask\faBrain}
+%\spellMKQ{3}{Fireball}{火球术}{8d6} % 原卡明确注明“购买”
+% 以下原卡部分标“6级”；本次按数量重建，保留为5级额外学习额度，
+% 并非断言这些法术在实际冒险时间线上于5级前取得。
+%\spellMKQ{3}{Fear}{恐惧术}{\faMask\faBrain}
+\spellMKQ{3}{Sending}{短讯术}{} % 原卡重复记录合并为一条
+%\spellMKQ{3}{Phantom Steed}{魅影驹}{\faMask\faBahai}
+\spellMKQ{3}{Speak with Dead}{死者交谈}{}
+\spellMKQ{3}{Leomund's Tiny Hut}{李欧蒙小屋}{\faBahai}
+\spellMKQ{3}{Dispel Magic}{解除魔法}{}
+
+% 5级没有四、五环法术位或相应已学法术。
+\FourthLevelSpellSlotsTotal{0}
+\FourthLevelSpellSlotsExpended{}
+\FifthLevelSpellSlotsTotal{0}
+\FifthLevelSpellSlotsExpended{}
+% 删除的四环：反冲术、高等隐形术、变形术、魔邓肯忠犬、咒唤微元素群、火焰护盾。
+% 删除的五环：力场墙、假象术、造物术、托梦术、授予技能、伪装术。
+% 删除6级魅影生灵（野兽召唤、妖精召唤）与10级幻影化形。
+
+\newcommand{\spellsheetchoice}{\renderhalfspellsheet}
+\newgeometry{left=0cm,right=0cm,top=0cm,bottom=0cm}
+\onecolumn
+\begin{Form}
+\pdfbookmark[0]{Character Sheet}{Character Sheet}
+\rendercharactersheet
+\pdfbookmark[0]{Background Sheet}{Background Sheet}
+\renderbackgroundsheet
+\pdfbookmark[0]{Spellcasting Sheet}{Spellcasting Sheet}
+\spellsheetchoice
+\end{Form}
+\end{document}

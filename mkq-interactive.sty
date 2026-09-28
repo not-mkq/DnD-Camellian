@@ -1,0 +1,280 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{mkq-interactive}[2026/09/28 Automatic spells, editable values and live preparation count]
+\RequirePackage{hyperref}
+\RequirePackage{etoolbox}
+\RequirePackage{xparse}
+\RequirePackage{eso-pic}
+
+% Native AcroForm checkboxes. Explicit vector appearances make saved states
+% visible without relying on JavaScript; only the live counter uses JavaScript.
+\makeatletter
+\AtBeginDocument{%
+  \HyField@NeedAppearancesfalse
+  \immediate\pdfobj stream attr{%
+    /Type/XObject /Subtype/Form /FormType 1 /BBox[0 0 10 10] /Resources<<>>
+  }{q 1 1 1 rg 0.1 0.1 0.1 RG 0.8 w
+    5 0.8 m 7.3196 0.8 9.2 2.6804 9.2 5 c
+    9.2 7.3196 7.3196 9.2 5 9.2 c
+    2.6804 9.2 0.8 7.3196 0.8 5 c
+    0.8 2.6804 2.6804 0.8 5 0.8 c h B Q}%
+  \xdef\mkq@offobject{\the\pdflastobj}%
+  \immediate\pdfobj stream attr{%
+    /Type/XObject /Subtype/Form /FormType 1 /BBox[0 0 10 10] /Resources<<>>
+  }{q 0.1 0.1 0.1 rg 0.1 0.1 0.1 RG 0.8 w
+    5 0.8 m 7.3196 0.8 9.2 2.6804 9.2 5 c
+    9.2 7.3196 7.3196 9.2 5 9.2 c
+    2.6804 9.2 0.8 7.3196 0.8 5 c
+    0.8 2.6804 2.6804 0.8 5 0.8 c h B Q}%
+  \xdef\mkq@onobject{\the\pdflastobj}%
+  % Run a normal calculation on reopening, without changing viewing position.
+  \immediate\pdfobj{<</S/JavaScript/JS(this.calculateNow\string(\string);)>>}%
+  \xdef\mkq@openjsobject{\the\pdflastobj}%
+  \pdfextension names{/JavaScript<</Names[(MKQPreparedCounter) \mkq@openjsobject\space 0 R]>>}%
+}
+\patchcmd{\PDFForm@Check}
+  {/AP<< /N <</Yes<<>>>> >>}
+  {/AP<</N<</Off \mkq@offobject\space 0 R /Yes \mkq@onobject\space 0 R>>>>}
+  {}{\PackageError{mkq-interactive}{Unsupported hyperref checkbox backend}
+    {Use LuaLaTeX with the standard hyperref package.}}
+\apptocmd{\PDFForm@Check}{%
+  \ifFld@checked /DV/Yes\else /DV/Off\fi
+  /A<</S/JavaScript/JS(this.calculateNow\string(\string);)>>%
+}{}{}
+
+% A prebuilt appearance makes the initial counter visible even with JS disabled.
+\newcommand{\MKQCounterField}[3]{%
+  \begingroup
+  \immediate\pdfobj stream attr{%
+    /Type/XObject /Subtype/Form /FormType 1 /BBox[0 0 150 24]
+    /Resources<</Font<</Helv \OBJ@Helv\space 0 R>>>>
+  }{q #2 rg BT /Helv 16 Tf 5 6 Td (#1) Tj ET Q}%
+  \edef\mkq@counterobject{\the\pdflastobj}%
+  \apptocmd{\PDFForm@Text}{/AP<</N \mkq@counterobject\space 0 R>>}{}{}%
+  \def\LayoutTextField##1##2{##2}%
+  \TextField[name=mkq-prepared-count,altname={准备数／上限：不统计固定状态法术},
+    width=150bp,height=24bp,readonly=true,print=true,
+    borderwidth=0,bordercolor={},backgroundcolor={},
+    charsize=16pt,color={#2},value={#1},default={#1},
+    calculate={#3},calculatesortkey=1]{}%
+  \endgroup
+}
+% Editable numeric entries, with a transparent background and centered text.
+% Arguments: field name, tooltip, initial digits (or empty), width/height/font
+% size in bp. The initial appearance uses Helvetica's tabular digit width;
+% edited values use automatic font sizing so longer coin totals still fit.
+% Editing and saving these ordinary text fields does not require JavaScript.
+\ExplSyntaxOn
+\cs_new:Npn \mkq@numberx #1#2#3
+  {\fp_eval:n {(#1 - 0.556 * #2 * \str_count:n {#3}) / 2}}
+\cs_new:Npn \mkq@numbery #1#2
+  {\fp_eval:n {(#1 - 0.718 * #2) / 2}}
+\ExplSyntaxOff
+\newcommand{\MKQNumberField}[6]{%
+  \begingroup
+  \immediate\pdfobj stream attr{%
+    /Type/XObject /Subtype/Form /FormType 1 /BBox[0 0 #4 #5]
+    /Resources<</Font<</Helv \OBJ@Helv\space 0 R>>>>
+  }{q 0.1 0.1 0.1 rg BT /Helv #6 Tf
+    \mkq@numberx{#4}{#6}{#3} \mkq@numbery{#5}{#6} Td
+    (\pdf@escapestring{#3}) Tj ET Q}%
+  \edef\mkq@numberobject{\the\pdflastobj}%
+  \apptocmd{\PDFForm@Text}{/AP<</N \mkq@numberobject\space 0 R>>}{}{}%
+  \def\LayoutTextField##1##2{##2}%
+  \TextField[name={#1},altname={#2},width=#4bp,height=#5bp,
+    readonly=false,print=true,align=1,
+    borderwidth=0,bordercolor={},backgroundcolor={},
+    charsize=0pt,color={0.1 0.1 0.1},value={#3},default={#3}]{}%
+  \endgroup
+}
+\makeatother
+
+% Internal widget: optional size, stable field name, default state, read-only,
+% tooltip. No field is placed inside the repeatedly measured fitbox environment.
+\NewDocumentCommand{\MKQCheck}{O{8pt} m m m m}{%
+  \begingroup
+  \def\LayoutCheckField##1##2{##2}% no empty-label padding
+  \CheckBox[name={#2},altname={#5},width=#1,height=#1,
+    borderwidth=0,bordercolor={},backgroundcolor={},color={0.1 0.1 0.1},
+    checkboxsymbol={\ding{108}},
+    checked=#3,readonly=#4,print=true]{}%
+  \endgroup
+}
+
+\ExplSyntaxOn
+\clist_new:N \g_mkq_prepared_clist
+\clist_new:N \g_mkq_always_clist
+\seq_new:N \g_mkq_spell_fields_seq
+\seq_new:N \g_mkq_slots_seq
+\seq_new:N \g_mkq_counted_names_seq
+\prop_new:N \g_mkq_field_names_prop
+\tl_new:N \l_mkq_letter_tl
+\tl_new:N \l_mkq_prefix_tl
+\tl_new:N \l_mkq_field_tl
+\tl_new:N \l_mkq_checked_tl
+\tl_new:N \l_mkq_readonly_tl
+\tl_new:N \l_mkq_fixed_tl
+\tl_new:N \l_mkq_counter_text_tl
+\tl_new:N \l_mkq_counter_color_tl
+\int_new:N \g_mkq_prepared_limit_int
+\int_gset:Nn \g_mkq_prepared_limit_int {9}
+\int_new:N \g_mkq_initial_prepared_int
+\int_step_inline:nn {5}{\int_new:c {g_mkq_level_#1_int}}
+
+\NewDocumentCommand{\PrepareSpellsMKQ}{m}
+  {\clist_gset:Nn \g_mkq_prepared_clist {#1}}
+\NewDocumentCommand{\PreparedLimitMKQ}{m}
+  {\int_gset:Nn \g_mkq_prepared_limit_int {#1}}
+% Backward-compatible list; an explicit per-spell option overrides this list.
+\NewDocumentCommand{\AlwaysPreparedMKQ}{m}
+  {\clist_gset:Nn \g_mkq_always_clist {#1}}
+
+\cs_new:Npn \mkq_level_word:n #1
+  {\int_case:nn {#1}{{1}{First}{2}{Second}{3}{Third}{4}{Fourth}{5}{Fifth}}}
+\cs_new:Npn \mkq_capacity:n #1
+  {\int_case:nn {#1}{{1}{26}{2}{19}{3}{19}{4}{19}{5}{18}}}
+
+% Four required arguments, plus an optional trailing [True] or [False].
+% Omitted: editable and counted. Explicit: locked and excluded from the count.
+% Every spell level has its own counter. Field IDs use names, not row letters,
+% so inserting a spell does not accidentally bind a different spell's checkbox.
+\NewDocumentCommand{\spellMKQ}{m m m m o}
+{
+  \int_compare:nNnTF {#1}<{1}
+    {\PackageError{mkq-interactive}{Spell~level~must~be~1--5}{}}
+    {
+      \int_compare:nNnTF {#1}>{5}
+        {\PackageError{mkq-interactive}{This~half~sheet~supports~levels~1--5}{}}
+        {\mkq_add_spell:nnnnn {#1}{#2}{#3}{#4}{#5}}
+    }
+}
+\cs_new_protected:Npn \mkq_add_spell:nnnnn #1#2#3#4#5
+{
+  \int_gincr:c {g_mkq_level_#1_int}
+  \int_compare:nNnTF {\int_use:c {g_mkq_level_#1_int}}>{\mkq_capacity:n {#1}}
+    {\PackageError{mkq-interactive}{Too~many~level~#1~spells~for~this~sheet}
+      {The~half~sheet~has~26/19/19/19/18~rows~for~levels~1--5.}}
+    {
+      \tl_set:Nx \l_mkq_letter_tl {\int_to_Alph:n {\int_use:c {g_mkq_level_#1_int}}}
+      \tl_set:Nx \l_mkq_prefix_tl {\mkq_level_word:n {#1}LevelSpellSlot\l_mkq_letter_tl}
+      \use:c {\l_mkq_prefix_tl}
+        {#2~(#3)\tl_if_blank:nF {#4}{~#4}}
+      % The printed circles are replaced by widgets on the interactive sheet.
+      \use:c {\l_mkq_prefix_tl Prepared}{False}
+      \tl_set:Nx \l_mkq_field_tl {\str_lowercase:n {#2}}
+      \regex_replace_all:nnN {[^a-z0-9]+}{-} \l_mkq_field_tl
+      \tl_put_left:Nn \l_mkq_field_tl {prep-#1-}
+      \exp_args:NNV \prop_if_in:NnTF \g_mkq_field_names_prop \l_mkq_field_tl
+        {\PackageError{mkq-interactive}{Duplicate~spell~field:~#2}{}}
+        {\exp_args:NNV \prop_gput:Nnn \g_mkq_field_names_prop \l_mkq_field_tl {#3}}
+      \tl_set:Nn \l_mkq_checked_tl {false}
+      \tl_set:Nn \l_mkq_readonly_tl {false}
+      \clist_if_in:NnT \g_mkq_prepared_clist {#2}
+        {\tl_set:Nn \l_mkq_checked_tl {true}}
+      \clist_if_in:NnT \g_mkq_always_clist {#2}
+        {\tl_set:Nn \l_mkq_checked_tl {true}\tl_set:Nn \l_mkq_readonly_tl {true}}
+      \IfNoValueF{#5}
+      {
+        \tl_set:Nx \l_mkq_fixed_tl {\str_lowercase:n {#5}}
+        \tl_trim_spaces:N \l_mkq_fixed_tl
+        \str_case:VnF \l_mkq_fixed_tl
+          {{true}{\tl_set:Nn \l_mkq_checked_tl {true}}
+           {false}{\tl_set:Nn \l_mkq_checked_tl {false}}}
+          {\PackageError{mkq-interactive}{Optional~state~must~be~True~or~False}
+            {Omit~the~option~for~an~editable,~counted~spell.}}
+        \tl_set:Nn \l_mkq_readonly_tl {true}
+      }
+      \tl_if_eq:NnT \l_mkq_readonly_tl {false}
+      {
+        \seq_gput_right:Nx \g_mkq_counted_names_seq {"\l_mkq_field_tl"}
+        \tl_if_eq:NnT \l_mkq_checked_tl {true}
+          {\int_gincr:N \g_mkq_initial_prepared_int}
+      }
+      \seq_gput_right:Nx \g_mkq_spell_fields_seq
+      {
+        \exp_not:N \mkq_spell_widget:nnnnnn
+        {#1}{\int_use:c {g_mkq_level_#1_int}}
+        {\l_mkq_field_tl}{\l_mkq_checked_tl}{\l_mkq_readonly_tl}{\exp_not:n {#3}}
+      }
+    }
+}
+
+\cs_new:Npn \mkq_column_x:n #1
+  {\int_case:nn {#1}{{1}{47.20413482}{2}{299.20412852}{3}{299.20412852}{4}{548.70412228}{5}{548.70412228}}}
+\cs_new:Npn \mkq_first_y:n #1
+  {\int_case:nn {#1}{{1}{526.64}{2}{812.95}{3}{397.17}{4}{812.95}{5}{396.61}}}
+% The supplied PSTricks template places the sheet at this origin. PDF widgets
+% must be emitted in the shipout overlay, outside PSTricks' transformed boxes.
+\NewDocumentCommand{\MKQAtSheet}{m m m}
+{
+  \put(\fp_eval:n{0.75*(#1)-2.632}pt,\fp_eval:n{0.75*(#2)+2.9684}pt)
+    {\makebox(0,0){#3}}
+}
+\cs_new_protected:Npn \mkq_spell_widget:nnnnnn #1#2#3#4#5#6
+{
+  \MKQAtSheet{\mkq_column_x:n {#1}}{\mkq_first_y:n {#1}-(#2-1)*18.6666662}
+    {\MKQCheck[7.3pt]{#3}{#4}{#5}{#6：准备状态}}
+}
+\NewDocumentCommand{\MKQRenderPreparedHalf}{}
+{
+  \AddToShipoutPictureFG*{\AtPageLowerLeft{
+    \seq_map_inline:Nn \g_mkq_spell_fields_seq {##1}
+    \seq_map_inline:Nn \g_mkq_slots_seq {##1}
+    \mkq_render_counter:
+  }}
+}
+% Acrobat Calculate action. Read only counted, editable preparation fields.
+% No file/network access and no global Reader settings are changed.
+\cs_new:Npn \mkq_counter_js:
+{
+  var~mkqCount=0;
+  var~mkqNames=[\seq_use:Nn \g_mkq_counted_names_seq {,}];
+  for(var~mkqI=0;mkqI<mkqNames.length;mkqI++){
+    var~mkqField=this.getField(mkqNames[mkqI]);
+    if(mkqField&&mkqField.isBoxChecked(0)){mkqCount++;}
+  }
+  var~mkqMax=\int_use:N \g_mkq_prepared_limit_int;
+  event.value=mkqCount+"~/~"+mkqMax+
+    (mkqCount>mkqMax?"~(+"+(mkqCount-mkqMax)+")":"");
+  event.target.textColor=mkqCount>mkqMax?["RGB",0.75,0.08,0.08]:["RGB",0.10,0.10,0.10];
+}
+\cs_new_protected:Npn \mkq_render_counter:
+{
+  \tl_set:Nx \l_mkq_counter_text_tl
+    {\int_use:N \g_mkq_initial_prepared_int\c_space_tl/\c_space_tl\int_use:N \g_mkq_prepared_limit_int}
+  \tl_set:Nn \l_mkq_counter_color_tl {0.10~0.10~0.10}
+  \int_compare:nNnT {\g_mkq_initial_prepared_int}>{\g_mkq_prepared_limit_int}
+  {
+    \tl_put_right:Nx \l_mkq_counter_text_tl
+      {\c_space_tl(+\int_eval:n{\g_mkq_initial_prepared_int-\g_mkq_prepared_limit_int})}
+    \tl_set:Nn \l_mkq_counter_color_tl {0.75~0.08~0.08}
+  }
+  \MKQAtSheet{157}{660}
+  {
+    \setlength{\fboxsep}{5pt}
+    \fcolorbox{outline-color}{white!90!yellow}{\parbox[c][61pt][c]{156pt}{\entryfont
+      \fontsize{9pt}{12pt}\selectfont\textbf{准备法术}\hfill 已准备／上限
+      \\[27pt]
+      \fontsize{7pt}{9pt}\selectfont 不含固定状态；超额标红~+N
+    }}
+  }
+  \MKQAtSheet{156}{657}
+    {\MKQCounterField{\l_mkq_counter_text_tl}{\l_mkq_counter_color_tl}{\mkq_counter_js:}}
+}
+\cs_new:Npn \mkq_slots_x:n #1
+  {\int_case:nn {#1}{{1}{201.03045507}{2}{453.03044877}{3}{453.03044877}{4}{702.53044253}{5}{702.53044253}}}
+\cs_new:Npn \mkq_slots_y:n #1
+  {\int_case:nn {#1}{{1}{563.85545107}{2}{847.49771214}{3}{431.71745300}{4}{847.49771214}{5}{431.161453}}}
+\cs_new_protected:Npn \mkq_slots_widget:nn #1#2
+{
+  \MKQAtSheet{\mkq_slots_x:n {#1}}{\mkq_slots_y:n {#1}}
+  {
+    \int_step_inline:nn {#2}
+    {
+      \MKQCheck[9pt]{slot-#1-##1}{false}{false}{#1环法术位~##1：勾选表示已消耗}
+      \int_compare:nNnT {##1}<{#2}{\hspace{3pt}}
+    }
+  }
+}
+\NewDocumentCommand{\UsedSlotsMKQ}{m m}
+  {\seq_gput_right:Nn \g_mkq_slots_seq {\mkq_slots_widget:nn {#1}{#2}}}
+\ExplSyntaxOff

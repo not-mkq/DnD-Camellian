@@ -1,6 +1,7 @@
 \newgeometry{left=-0.6cm,right=0cm,top=0cm,bottom=0cm}
 
 \newpage
+\ifdefined\MKQRenderPreparedHalf\MKQRenderPreparedHalf\fi
 
 %\hspace*{-9mm}
 \makebox[\paperwidth][s]{
@@ -14,7 +15,11 @@
 				\input{template/spell-sheet/outlines.tex}
 				\input{template/half-spell-sheet/spell-level-headers.tex}
 				\input{template/half-spell-sheet/player-input.tex}
-				\input{template/half-spell-sheet/spell-slots.tex}
+				\ifdefined\MKQRenderPreparedHalf
+                  \input{template/half-spell-sheet/spell-lines-only.tex}
+                \else
+                  \input{template/half-spell-sheet/spell-slots.tex}
+                \fi
 				\input{template/half-spell-sheet/template-text.tex}
 			}
 
