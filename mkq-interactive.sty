@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{mkq-interactive}[2026/09/28 Automatic spells, editable values and live preparation count]
+\ProvidesPackage{mkq-interactive}[2026/09/28 Automatic spells, resources and editable values]
 \RequirePackage{hyperref}
 \RequirePackage{etoolbox}
 \RequirePackage{xparse}
@@ -8,6 +8,18 @@
 % Native AcroForm checkboxes. Explicit vector appearances make saved states
 % visible without relying on JavaScript; only the live counter uses JavaScript.
 \makeatletter
+\newcommand{\ResourceFontFileMKQ}{template/fonts/Yozai-Regular.ttf}
+\AtBeginDocument{%
+  \directlua{%
+    mkq_resource_font = dofile(kpse.find_file("mkq-resource-font.lua", "tex"))
+    token.set_macro("MKQResourceFontObject",
+      tostring(mkq_resource_font.embed("\luaescapestring{\ResourceFontFileMKQ}")), "global")
+  }%
+}
+\patchcmd{\@Form}
+  {/Helv \OBJ@Helv\space 0 R}
+  {/Helv \OBJ@Helv\space 0 R /MKQNotes \MKQResourceFontObject\space 0 R}
+  {}{\PackageError{mkq-interactive}{Cannot add resource note font to AcroForm}{}}
 \AtBeginDocument{%
   \HyField@NeedAppearancesfalse
   \immediate\pdfobj stream attr{%
@@ -86,6 +98,26 @@
     charsize=0pt,color={0.1 0.1 0.1},value={#3},default={#3}]{}%
   \endgroup
 }
+% Native multiline note. The initial appearance is typeset with the sheet's
+% font; its editable default appearance uses the complete embedded CJK font.
+\newsavebox{\mkq@notebox}
+\newcommand{\MKQResourceNoteField}[5]{%
+  \begingroup
+  \sbox{\mkq@notebox}{\pdfliteral{q Q}\parbox[c][#3bp][c]{#2bp}{%
+    \hspace*{2bp}\parbox{\dimexpr#2bp-4bp\relax}{%
+      \entryfont\fontsize{7bp}{8.5bp}\selectfont\raggedright #4}}}%
+  \immediate\saveboxresource\mkq@notebox
+  \edef\mkq@noteobject{\the\lastsavedboxresourceindex}%
+  \patchcmd{\PDFForm@Text}{/Helv}{/MKQNotes}{}{}%
+  \apptocmd{\PDFForm@Text}{/AP<</N \mkq@noteobject\space 0 R>>}{}{}%
+  \appto\pdfstringdefPreHook{\def\\{\textCR}}% preserve source line breaks in /V
+  \def\LayoutTextField##1##2{##2}%
+  \TextField[name={#1},altname={#5：备注，可编辑},width=#2bp,height=#3bp,
+    readonly=false,multiline=true,print=true,align=0,
+    borderwidth=0,bordercolor={},backgroundcolor={},
+    charsize=7bp,color={0.1 0.1 0.1},value={#4},default={#4}]{}%
+  \endgroup
+}
 \makeatother
 
 % Internal widget: optional size, stable field name, default state, read-only,
@@ -101,6 +133,212 @@
 }
 
 \ExplSyntaxOn
+% Resource rows are collected in source order and laid out only at shipout.
+% Three required arguments match the visible columns. Optional trailing keys
+% supply a stable ID and the number of initially consumed uses.
+\seq_new:N \g_mkq_resources_seq
+\prop_new:N \g_mkq_resource_ids_prop
+\int_new:N \g_mkq_resource_int
+\int_new:N \l_mkq_resource_count_int
+\int_new:N \l_mkq_resource_used_int
+\tl_new:N \l_mkq_resource_id_tl
+\dim_new:N \l_mkq_resource_offset_dim
+\dim_new:N \l_mkq_resource_height_dim
+\dim_new:N \l_mkq_resource_center_dim
+\box_new:N \l_mkq_resource_name_box
+\box_new:N \l_mkq_resource_note_box
+\box_new:N \l_mkq_attack_box
+\bool_new:N \g_mkq_attack_measured_bool
+\dim_new:N \g_mkq_attack_height_dim
+\dim_new:N \g_mkq_resource_gap_dim
+\dim_gset:Nn \g_mkq_resource_gap_dim {6pt}
+\fp_new:N \g_mkq_attack_left_fp
+\fp_new:N \g_mkq_attack_right_fp
+\fp_new:N \g_mkq_attack_bottom_fp
+\fp_new:N \g_mkq_resource_x_fp
+\fp_new:N \g_mkq_resource_top_fp
+\fp_new:N \g_mkq_resource_top_limit_fp
+\fp_new:N \g_mkq_resource_bottom_fp
+\fp_gset:Nn \g_mkq_resource_x_fp {296}
+\fp_gset:Nn \g_mkq_resource_top_limit_fp {576}
+\fp_gset:Nn \g_mkq_resource_bottom_fp {300}
+% Typeset the entire attack block once, including wrapped weapon names and
+% AttacksAdditional, then display that same measured box in PSTricks.
+% Resource widgets stay in the shipout overlay, outside the PSTricks box.
+\NewDocumentCommand{\MKQPlaceAttacks}{m m +m}
+{
+  \hbox_set:Nn \l_mkq_attack_box {#3}
+  \dim_gset:Nn \g_mkq_attack_height_dim
+    {\box_ht:N \l_mkq_attack_box + \box_dp:N \l_mkq_attack_box}
+  \fp_gset:Nn \g_mkq_attack_left_fp {#1}
+  \fp_gset:Nn \g_mkq_attack_right_fp
+    {#1 + \dim_to_fp:n {\box_wd:N \l_mkq_attack_box}/0.75}
+  \fp_gset:Nn \g_mkq_attack_bottom_fp
+    {#2 - \dim_to_fp:n {\g_mkq_attack_height_dim}/0.75}
+  \bool_gset_true:N \g_mkq_attack_measured_bool
+  \rput[lt](#1,#2){\box_use_drop:N \l_mkq_attack_box}
+}
+\cs_new_protected:Npn \mkq_resource_resolve_top:
+{
+  \fp_set_eq:NN \g_mkq_resource_top_fp \g_mkq_resource_top_limit_fp
+  \bool_if:NT \g_mkq_attack_measured_bool
+  {
+    \bool_lazy_and:nnT
+      {\fp_compare_p:n {\g_mkq_resource_x_fp < \g_mkq_attack_right_fp}}
+      {\fp_compare_p:n {\g_mkq_resource_x_fp + 167/0.75 > \g_mkq_attack_left_fp}}
+    {
+      \fp_set:Nn \g_mkq_resource_top_fp
+        {min(\g_mkq_resource_top_limit_fp,
+          \g_mkq_attack_bottom_fp - \dim_to_fp:n {\g_mkq_resource_gap_dim}/0.75)}
+    }
+  }
+  \PackageInfo{mkq-interactive}
+    {Resource~layout:~attack~height=\dim_use:N \g_mkq_attack_height_dim;
+     ~resource~top=\fp_use:N \g_mkq_resource_top_fp}
+}
+\keys_define:nn {mkq/resource}
+{
+  id .tl_set:N = \l_mkq_resource_id_tl,
+  used .int_set:N = \l_mkq_resource_used_int,
+}
+\NewDocumentCommand{\ResourceAreaMKQ}{m m m}
+{
+  \fp_gset:Nn \g_mkq_resource_x_fp {#1}
+  % The second argument is an upper limit, never permission to cover attacks.
+  \fp_gset:Nn \g_mkq_resource_top_limit_fp {#2}
+  \fp_gset:Nn \g_mkq_resource_bottom_fp {#3}
+}
+% Optional compact vitals: save 100 sheet units (75pt) and give every one
+% of them to the attack panel. The same transform drives borders and content.
+\NewExpandableDocumentCommand{\MKQLiftY}{m}{#1}
+\NewDocumentCommand{\MKQShiftVitals}{+m}
+{
+  \ifdefined\MKQCompactVitals \rput(0,100){#1}\else #1\fi
+}
+\NewDocumentCommand{\CompactVitalsMKQ}{}
+{
+  \cs_gset:Npn \MKQCompactVitals {}
+  \cs_gset:Npn \MKQLiftY ##1 {\fp_eval:n {##1+100}}
+  \ResourceAreaMKQ{296}{676}{300}
+}
+\NewDocumentCommand{\ResourceGapMKQ}{m}
+{
+  \dim_compare:nNnTF {#1}<{0pt}
+    {\PackageError{mkq-interactive}{Resource~gap~cannot~be~negative}{}}
+    {\dim_gset:Nn \g_mkq_resource_gap_dim {#1}}
+}
+\NewDocumentCommand{\resourceMKQ}{m m m O{}}
+{
+  \group_begin:
+  \int_set:Nn \l_mkq_resource_count_int {#2}
+  \int_zero:N \l_mkq_resource_used_int
+  \tl_clear:N \l_mkq_resource_id_tl
+  \keys_set:nn {mkq/resource}{#4}
+  \bool_lazy_or:nnTF
+    {\int_compare_p:n {\l_mkq_resource_count_int < 1}}
+    {\int_compare_p:n {\l_mkq_resource_count_int > 8}}
+    {\PackageError{mkq-interactive}{Resource~uses~must~be~1--8}{}}
+    {
+      \bool_lazy_or:nnTF
+        {\int_compare_p:n {\l_mkq_resource_used_int < 0}}
+        {\int_compare_p:n {\l_mkq_resource_used_int > \l_mkq_resource_count_int}}
+        {\PackageError{mkq-interactive}{Initial~used~count~is~outside~the~resource~range}{}}
+        {
+          \int_gincr:N \g_mkq_resource_int
+          \tl_if_blank:VT \l_mkq_resource_id_tl
+            {\tl_set:Nx \l_mkq_resource_id_tl {auto-\int_use:N \g_mkq_resource_int}}
+          \exp_args:NnV \regex_match:nnTF {\A[A-Za-z0-9_-]+\Z} \l_mkq_resource_id_tl
+            {}
+            {\PackageError{mkq-interactive}{Resource~ID~must~use~letters,~digits,~hyphens~or~underscores}{}}
+          \exp_args:NNV \prop_if_in:NnTF \g_mkq_resource_ids_prop \l_mkq_resource_id_tl
+            {\PackageError{mkq-interactive}{Duplicate~resource~ID:~\l_mkq_resource_id_tl}{}}
+            {\exp_args:NNV \prop_gput:Nnn \g_mkq_resource_ids_prop \l_mkq_resource_id_tl {#1}}
+          \seq_gput_right:Nx \g_mkq_resources_seq
+          {
+            \exp_not:N \mkq_resource_row:nnnnn
+            {\l_mkq_resource_id_tl}{\exp_not:n {#1}}
+            {\int_use:N \l_mkq_resource_count_int}{\exp_not:n {#3}}
+            {\int_use:N \l_mkq_resource_used_int}
+          }
+        }
+    }
+  \group_end:
+}
+\cs_new_protected:Npn \mkq_resource_at:nnn #1#2#3
+{
+  \MKQAtSheet
+    {\g_mkq_resource_x_fp + \dim_to_fp:n {#1}/0.75}
+    {\g_mkq_resource_top_fp - \dim_to_fp:n {#2}/0.75}{#3}
+}
+\cs_new_protected:Npn \mkq_resource_row:nnnnn #1#2#3#4#5
+{
+  \hbox_set:Nn \l_mkq_resource_name_box
+    {\parbox[c]{44pt}{\centering\entryfont\fontsize{7.5pt}{9pt}\selectfont #2}}
+  \hbox_set:Nn \l_mkq_resource_note_box
+    {\parbox[c]{\dim_eval:n {63pt-4bp}}{\raggedright\entryfont\fontsize{7bp}{8.5bp}\selectfont #4}}
+  \dim_set:Nn \l_mkq_resource_height_dim
+    {\int_compare:nNnTF {#3}>{4}{30pt}{18pt}}
+  \dim_set:Nn \l_mkq_resource_height_dim
+    {\dim_max:nn {\l_mkq_resource_height_dim}
+      {\dim_max:nn
+        {\box_ht:N \l_mkq_resource_name_box + \box_dp:N \l_mkq_resource_name_box + 4pt}
+        {\box_ht:N \l_mkq_resource_note_box + \box_dp:N \l_mkq_resource_note_box + 6pt}}}
+  \dim_compare:nNnT
+    {\l_mkq_resource_offset_dim + \l_mkq_resource_height_dim}>
+    {\fp_eval:n {0.75*(\g_mkq_resource_top_fp-\g_mkq_resource_bottom_fp)}pt}
+    {\PackageError{mkq-interactive}{Attack/resource~area~overflow~at~#2}
+      {Shorten~the~attack~list,~additional~text~or~resource~rows.
+       ~The~resource~table~must~stay~below~the~measured~attack~block~and~above~the~area~bottom.}}
+  \dim_set:Nn \l_mkq_resource_center_dim
+    {\l_mkq_resource_offset_dim + 0.5\l_mkq_resource_height_dim}
+  \mkq_resource_at:nnn {22pt}{\l_mkq_resource_center_dim}
+    {\box_use:N \l_mkq_resource_name_box}
+  \int_step_inline:nn {#3}
+  {
+    \int_compare:nNnTF {##1}>{4}
+    {
+      \mkq_resource_at:nnn
+        {\fp_eval:n {73 + (##1-4-(#3-4+1)/2)*11}pt}
+        {\l_mkq_resource_center_dim + 6pt}
+        {\MKQCheck[8pt]{resource-#1-##1}
+          {\int_compare:nNnTF {##1}>{#5}{false}{true}}{false}{#2~##1/#3：勾选表示已使用}}
+    }
+    {
+      \mkq_resource_at:nnn
+        {\fp_eval:n {73 + (##1-(min(4,#3)+1)/2)*11}pt}
+        {\l_mkq_resource_center_dim - \int_compare:nNnTF {#3}>{4}{6pt}{0pt}}
+        {\MKQCheck[8pt]{resource-#1-##1}
+          {\int_compare:nNnTF {##1}>{#5}{false}{true}}{false}{#2~##1/#3：勾选表示已使用}}
+    }
+  }
+  \mkq_resource_at:nnn {134.5pt}{\l_mkq_resource_center_dim}
+  {
+    \MKQResourceNoteField{resource-#1-note}
+      {\dim_to_decimal_in_bp:n {63pt}}
+      {\dim_to_decimal_in_bp:n {\l_mkq_resource_height_dim-4pt}}{#4}{#2}
+  }
+  \dim_add:Nn \l_mkq_resource_offset_dim {\l_mkq_resource_height_dim}
+  \mkq_resource_at:nnn {83.5pt}{\l_mkq_resource_offset_dim}
+    {\color{outline-color!55}\rule{167pt}{0.25pt}}
+}
+\NewDocumentCommand{\MKQRenderResources}{}
+{
+  \seq_if_empty:NF \g_mkq_resources_seq
+  {
+    \AddToShipoutPictureFG*{\AtPageLowerLeft{
+      \group_begin:
+      \mkq_resource_resolve_top:
+      \mkq_resource_at:nnn {22pt}{5pt}{\entryfont\fontsize{7pt}{9pt}\selectfont\textbf{资源名}}
+      \mkq_resource_at:nnn {73pt}{5pt}{\entryfont\fontsize{7pt}{9pt}\selectfont\textbf{已使用}}
+      \mkq_resource_at:nnn {134.5pt}{5pt}{\entryfont\fontsize{7pt}{9pt}\selectfont\textbf{备注}}
+      \mkq_resource_at:nnn {83.5pt}{12pt}{\color{outline-color}\rule{167pt}{0.4pt}}
+      \dim_set:Nn \l_mkq_resource_offset_dim {14pt}
+      \seq_map_inline:Nn \g_mkq_resources_seq {##1}
+      \group_end:
+    }}
+  }
+}
+
 \clist_new:N \g_mkq_prepared_clist
 \clist_new:N \g_mkq_always_clist
 \seq_new:N \g_mkq_spell_fields_seq
@@ -208,6 +446,30 @@
 {
   \put(\fp_eval:n{0.75*(#1)-2.632}pt,\fp_eval:n{0.75*(#2)+2.9684}pt)
     {\makebox(0,0){#3}}
+}
+% Center the whole death-save row (label + three widgets) as one box.
+% Native widget borders include a 1pt margin on each side, so each 8pt
+% checkbox gets a 10pt cell. Vertical centering uses the measured TeX box.
+\cs_new_protected:Npn \mkq_vcenter:n #1
+  {\raisebox{\dimexpr(\depth-\height)/2\relax}{#1}}
+\NewDocumentCommand{\MKQDeathSaveRow}{m m m}
+{
+  % The PSTricks panel is centered at 464.150255065. Its actual page origin
+  % is 5/3pt left of the legacy overlay origin: 20/9 sheet units.
+  \MKQAtSheet{464.150255065-20/9}{#3}
+  {
+    \hbox{
+      \mkq_vcenter:n {\tiny\textcolor{secondary-indicator-color}{\textsf{#2}}}
+      \hspace{4pt}
+      \int_step_inline:nn {3}
+      {
+        \int_compare:nNnT {##1}>{1}{\hspace{4pt}}
+        \makebox[10pt][c]{\mkq_vcenter:n {
+          \MKQCheck[8pt]{death-#1-##1}{false}{false}{死亡豁免#2##1}
+        }}
+      }
+    }
+  }
 }
 \cs_new_protected:Npn \mkq_spell_widget:nnnnnn #1#2#3#4#5#6
 {

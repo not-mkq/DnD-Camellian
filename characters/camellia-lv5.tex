@@ -6,7 +6,8 @@
 % HP按用户要求采用严格数学期望：6 + 4*3.5 + 5*1 = 25。
 % 若团内“取期望”指规则固定值d6取4，将下方25改成27即可。
 % 法术书最低数：10级=6+9*2+5=29；5级=6+4*2+3=17；差12。
-% 删除原卡12道四/五环法术，保留44道一至三环法术（17+27额外）。
+% 初次回退删除12道四/五环法术，留下44道一至三环法术。
+% 本版合并用户后续修改：注释保留18道，当前启用26道（12/7/7）；比最低17多9道。
 % 6级召唤特性、专长仪式、戏法均单独核算，不混入上述法术书计数。
 
 \documentclass[letterpaper,openany,twoside,twocolumn]{book}
@@ -40,7 +41,7 @@
 % 末尾可加[True]/[False]：锁定勾选/未勾选，且排除准备计数；省略可自由切换。
 \usepackage{mkq-interactive}
 % 初次生成 PDF 时的默认准备状态；之后可直接在 PDF 中勾选。
-\PrepareSpellsMKQ{Shield,Mage Armor,Absorb Elements,Phantasmal Force,Misty Step,Mirror Image,Counterspell,Major Image,Fireball}
+\PrepareSpellsMKQ{Shield,Mage Armor,Absorb Elements,Phantasmal Force,Misty Step,Mirror Image,Counterspell,Major Image}
 % 统计上限；始终准备的三道专长法术在对应条目末尾写[True]。
 \PreparedLimitMKQ{9}
 
@@ -119,33 +120,33 @@
 \SetStealthProficiency{0}
 \SetSurvivalProficiency{0}
 
+% 紧凑生命栏：当前 / 上限 + 临时；腾出的75pt全部加入攻击与施法区。
+\CompactVitalsMKQ
 \Inspiration{} % PDF 默认拥有英雄激励，原位置由原生表单覆盖。
+% 与模板联动：隐藏旧的印刷圆圈/行标签，统一居中绘制交互行。
+\newcommand{\MKQRenderDeathSaves}{%
+  \MKQDeathSaveRow{success}{成功}{\MKQLiftY{620.23745116}}%
+  \MKQDeathSaveRow{failure}{失败}{\MKQLiftY{600.23825166}}%
+}
 \newcommand{\MKQRenderCharacterFields}{%
   \AddToShipoutPictureFG*{\AtPageLowerLeft{%
     \MKQAtSheet{143.42533022}{869.816111585}{\MKQCheck[11pt]{heroic-inspiration}{true}{false}{英雄激励：勾选表示拥有}}%
-    \MKQAtSheet{301.9}{424.8}{\MKQCheck{used-arcane-recovery}{false}{false}{奥术回想：勾选表示已使用}}%
-    \MKQAtSheet{362.5}{424.8}{\MKQCheck{used-quick-ritual}{false}{false}{快速仪式：勾选表示已使用}}%
-    \MKQAtSheet{301.9}{404.8}{\MKQCheck{used-speak-with-plants}{false}{false}{植物交谈：勾选表示已使用}}%
-    \MKQAtSheet{467.33438832}{620.23745116}{\MKQCheck[10pt]{death-success-1}{false}{false}{死亡豁免成功1}}%
-    \MKQAtSheet{484.48238789}{620.23745116}{\MKQCheck[10pt]{death-success-2}{false}{false}{死亡豁免成功2}}%
-    \MKQAtSheet{501.63038746}{620.23745116}{\MKQCheck[10pt]{death-success-3}{false}{false}{死亡豁免成功3}}%
-    \MKQAtSheet{467.33438832}{600.23825166}{\MKQCheck[10pt]{death-failure-1}{false}{false}{死亡豁免失败1}}%
-    \MKQAtSheet{484.48238789}{600.23825166}{\MKQCheck[10pt]{death-failure-2}{false}{false}{死亡豁免失败2}}%
-    \MKQAtSheet{501.63038746}{600.23825166}{\MKQCheck[10pt]{death-failure-3}{false}{false}{死亡豁免失败3}}%
     % 可输入数值：字段名、提示、初始值、宽、高、字号（后三项单位bp）。
-    \MKQAtSheet{407.99998987}{752.58358106}{\MKQNumberField{current-hit-points}{当前生命值}{}{145}{26}{22}}%
-    \MKQAtSheet{407.99998987}{684.10878302}{\MKQNumberField{temporary-hit-points}{临时生命值}{}{145}{26}{22}}%
+    \MKQAtSheet{340}{779}{\MKQNumberField{current-hit-points}{当前生命值}{}{38}{18}{16}}%
+    \MKQAtSheet{476}{779}{\MKQNumberField{temporary-hit-points}{临时生命值}{}{38}{18}{16}}%
+    \MKQAtSheet{350.73265790}{\MKQLiftY{600.18398492}}{\MKQNumberField{current-hit-dice}{剩余生命骰数量}{5}{52}{19}{18}}%
     \MKQAtSheet{325.27479187}{141.90639645}{\MKQNumberField{gold-pieces}{金币}{2490}{40}{16}{12}}%
+    \MKQRenderDeathSaves%
   }}%
 }
 \Proficiency{3}
 \Perception{10}
-\ArmorClass{15\\\tiny{法甲；平时12}}
+\ArmorClass{12+3}
 \Initiative{2}
 \Speed{30ft}
 \MaxHitPoints{25}
 \MaxHitDice{5d6}
-\CurrentHitDice{5}
+\CurrentHitDice{} % 剩余数量初始5设在上方可编辑表单中。
 \CP{}
 \SP{}
 \GP{}
@@ -186,6 +187,7 @@
 \Flaws{\scriptsize
   注意力涣散的天才法师：在学校光速地学会法术的主要原理后便无心了解细节问题，施展出的法术偶尔会出现奇怪的效果，目前在银月城有延毕风险。\\
   对说话的气氛缺少把握，低感知人。\\
+
 }
 
 \FeaturesTraits{\scriptsize
@@ -212,12 +214,13 @@
 \AddWeapon{谭森浮碟~\faBahai}{仪式}{1h}
 \AddWeapon{隐形仆役~\faBahai}{仪式}{1h}
 \AddWeapon{动物交谈~\faBahai}{仪式}{10min}
-\AttacksAdditional{\scriptsize
-  \textbf{资源使用记录}（勾选＝已使用）\\[2pt]
-  \hspace*{8pt}\enspace 奥术回想\quad
-  \hspace*{8pt}\enspace 快速仪式\\[3pt]
-  \hspace*{8pt}\enspace 植物交谈
-}
+\AttacksAdditional{}
+% 名称、最大次数（1--8）、可编辑备注的初始值；自动按顺序向下排列。
+\resourceMKQ{奥术回想}{1}{长休恢复}[id=arcane-recovery]
+\resourceMKQ{快速仪式}{1}{长休恢复}[id=quick-ritual]
+\resourceMKQ{植物交谈}{1}{每日一次}[id=speak-with-plants]
+% 充能武器写法示例（未添加到角色装备；used=2表示初始已消耗两格）：
+% \resourceMKQ{充能武器}{8}{按道具说明恢复}[id=charged-weapon,used=2]
 
 \Age{35}
 \Height{1.7m}
@@ -236,8 +239,8 @@
 \AdditionalFeaturesAndTraits{\small
   \textbf{5级施法速查}\\
   法术位：一环4、二环3、三环2。\\
-  法师准备9道；仪式专长另有3道始终准备。\\
-  法术书44道：一环21、二环13、三环10。\\
+  法师准备上限9道，初始8道；专长另3道始终准备。\\
+  当前法术书26道：一环12、二环7、三环7。\\
   法术豁免DC15，法术攻击+7。\\[4pt]
   \textbf{常用防护}\\
   法师护甲生效时AC15（持续8小时，不专注）；护盾术生效时再+5。\\
@@ -263,6 +266,9 @@
   风骸岛6君子！罗盘蔷薇号\\
   熏人洞窟\\\\
   哈姆科斯特：死灵法师\\
+  \\
+  ... \\
+  我这是在哪里, 我不是已经死在凡达林的矿坑了吗, 露西! 活圣人! 黑皮王八蛋! 韩立! 厉飞雨! 你们都在哪里啊! \\
   % 想学的法术：塔莎心灵鞭、缓慢术、涅斯图魔法灵光。
 }
 
@@ -298,7 +304,7 @@
 \CantripSlotA{Mage Hand (法师之手)}
 \CantripSlotB{Acid Splash (酸液飞溅) 2d6}
 \CantripSlotC{Prestidigitation (魔法伎俩)}
-\CantripSlotD{Fire Bolt (传讯术) 2d10}
+\CantripSlotD{Message (传讯术)}
 \CantripSlotE{Minor Illusion (次级幻象) \faMask}
 % 原卡另列的电爪、交友术、火焰箭列为长休替换候选，不同时算作已知。
 % 电爪如换入，5级伤害为2d8；换出的是职业戏法，不是次级幻象。
@@ -306,7 +312,7 @@
 \FirstLevelSpellSlotsTotal{4}
 \FirstLevelSpellSlotsExpended{}
 \UsedSlotsMKQ{1}{4}
-% 一环：原有法术书21道，准备3道。
+% 一环：当前启用12道法术书法术，初始准备3道；另外9道按用户修改保留为注释。
 \spellMKQ{1}{Shield}{护盾术}{反应}
 \spellMKQ{1}{Mage Armor}{法师护甲}{8h}
 %\spellMKQ{1}{Expeditious Retreat}{脚底抹油}{\faBrain}
@@ -330,7 +336,7 @@
 %\spellMKQ{1}{False Life}{虚假生命}{}
 %\spellMKQ{1}{Protection from Evil and Good}{防护善恶}{\faBrain}
 % 仪式施法者：沿原卡顺序保留前三道；第四道通晓语言随PB4→3移除。
-% 这三道不计入44道法术书，也不占9道法师准备名额。
+% 这三道不计入26道法术书，也不占9道法师准备名额。
 \spellMKQ{1}{Tenser's Floating Disk}{谭森浮碟}{\faBahai~专长}[True]
 \spellMKQ{1}{Unseen Servant}{隐形仆役}{\faBahai~专长}[True]
 \spellMKQ{1}{Speak with Animals}{动物交谈}{\faBahai~专长}[True]
@@ -338,7 +344,7 @@
 \SecondLevelSpellSlotsTotal{3}
 \SecondLevelSpellSlotsExpended{}
 \UsedSlotsMKQ{2}{3}
-% 二环：原有13道，准备3道。
+% 二环：当前启用7道，初始准备3道；另外6道保留为注释。
 \spellMKQ{2}{Phantasmal Force}{魅影之力}{\faMask\faBrain}
 %\spellMKQ{2}{Hold Person}{定身类人}{\faBrain}
 \spellMKQ{2}{Misty Step}{迷踪步}{附赠}
@@ -356,7 +362,7 @@
 \ThirdLevelSpellSlotsTotal{2}
 \ThirdLevelSpellSlotsExpended{}
 \UsedSlotsMKQ{3}{2}
-% 三环：去重后保留10道，准备3道；所有条目使用自动编号四参数宏。
+% 三环：当前启用7道，初始准备2道；另外3道保留为注释。
 \spellMKQ{3}{Counterspell}{法术反制}{反应}
 \spellMKQ{3}{Hypnotic Pattern}{催眠图纹}{\faMask\faBrain}
 \spellMKQ{3}{Major Image}{高级幻影}{\faMask\faBrain}

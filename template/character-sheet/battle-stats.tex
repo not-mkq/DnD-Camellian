@@ -260,6 +260,12 @@
 	\closepath
 }
 }
+% Compact mode combines current / maximum + temporary HP in one row.
+\providecommand{\MKQLiftY}[1]{#1}
+\providecommand{\MKQShiftVitals}[1]{#1}
+\ifdefined\MKQCompactVitals
+\input{template/character-sheet/compact-hit-points.tex}
+\else
 % CURRENT HIT POINTS BACKGROUND
 {
 \newrgbcolor{curcolor}{1 1 1}
@@ -453,6 +459,8 @@
 	\closepath
 }
 }
+\fi
+\MKQShiftVitals{%
 % HIT DICE BACKGROUND
 {
 \newrgbcolor{curcolor}{1 1 1}
@@ -634,6 +642,8 @@
 	\closepath
 }
 }
+% Interactive rows supply their own circles; do not print duplicate outlines.
+\ifdefined\MKQRenderDeathSaves\else
 % DEATH SAVE SUCCESS ROW
 {
 \pscustom[linestyle=none,fillstyle=solid,fillcolor=secondary-indicator-color]
@@ -732,3 +742,6 @@
 	\curveto(506.673054,597.45825173)(504.41038739,595.19558512)(501.63038746,595.19558512)
 }
 }
+\fi
+
+}% end hit dice and death saves

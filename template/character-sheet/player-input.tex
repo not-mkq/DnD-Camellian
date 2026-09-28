@@ -64,11 +64,19 @@
 \rput[cc](330.04105841,852.46451227){\LARGE \entryfont \textcolor{text-color}{\ArmorClassValue}}
 \rput[cc](405.17452320,847.59717893){\LARGE \entryfont \textcolor{text-color}{\addplus{\InitiativeValue}}}
 \rput[cc](475.04118792,839.59717893){\begin{fitbox}{40pt}{24pt}{\LARGE} \centering \entryfont \textcolor{text-color}{\SpeedValue} \end{fitbox}}
+\ifdefined\MKQCompactVitals
+\rput[cc](408,779){\fontsize{16bp}{18bp}\selectfont\entryfont\textcolor{text-color}{\MaxHitPointsValue}}
+\rput[cc](340,779){\Large\entryfont\textcolor{text-color}{\CurrentHitPointsValue}}
+\rput[cc](476,779){\Large\entryfont\textcolor{text-color}{\TemporaryHitPointsValue}}
+\else
 \rput[cc](451.42132215,783.32600593){\footnotesize \entryfont \textcolor{text-color}{\MaxHitPointsValue}}
 \rput[cc](407.99998987,752.58358106){\LARGE \entryfont \textcolor{text-color}{\CurrentHitPointsValue}}
 \rput[cc](407.99998987,684.10878302){\LARGE \entryfont \textcolor{text-color}{\TemporaryHitPointsValue}}
+\fi
+\MKQShiftVitals{%
 \rput[cc](362.57465764,622.54787662){\footnotesize \entryfont \textcolor{text-color}{\MaxHitDiceValue}}
 \rput[cc](350.73265790,600.18398492){\LARGE \entryfont \textcolor{text-color}{\CurrentHitDiceValue}}
+}
 
 % MONEY
 \rput[cc](325.27479187,245.72826052){\Large \entryfont \textcolor{text-color}{\CPValue}}
@@ -80,9 +88,12 @@
 % FREEFORM ENTRY
 
 % ATTACKS AND SPELLCASTING
+% The interactive module measures and displays the same attack box, so the
+% resource table follows its actual height. Ordinary sheets keep the old rput.
+\providecommand{\MKQPlaceAttacks}[3]{\rput[lt](#1,#2){#3}}
 \IfPackageLoadedTF{dnd}
 {
-	\rput[lt](296,576){\parbox{167pt}{\justify\entryfont
+	\MKQPlaceAttacks{296}{\MKQLiftY{576}}{\parbox{167pt}{\justify\entryfont
 			\begin{DndTable}{Xll}
 				\tiny \textcolor{tertiary-indicator-color}{\textsf{NAME}}        &
 				\tiny \textcolor{tertiary-indicator-color}{\textsf{ATK BONUS}}   &
@@ -94,7 +105,7 @@
 	}
 }
 {
-	\rput[lt](296,552){\parbox{167pt}{\entryfont
+	\MKQPlaceAttacks{296}{\MKQLiftY{552}}{\parbox{167pt}{\entryfont
 			\begin{tabular}{lll}
 				\tiny \textcolor{tertiary-indicator-color}{\textsf{NAME}}        &
 				\tiny \textcolor{tertiary-indicator-color}{\textsf{ATK BONUS}}   &

@@ -58,16 +58,31 @@
 \rput[cc](405.68778402,818.3871647){\scriptsize \textcolor{secondary-indicator-color}{\textbf{\textsf{先攻}}}}
 \rput[cc](483.73416187,818.3871647){\scriptsize \textcolor{secondary-indicator-color}{\textbf{\textsf{速度}}}}
 
+\ifdefined\MKQCompactVitals
+\rput[cc](340,758){\scriptsize\textcolor{secondary-indicator-color}{\textsf{当前生命}}}
+\rput[cc](408,758){\scriptsize\textcolor{secondary-indicator-color}{\textsf{生命上限}}}
+\rput[cc](476,758){\scriptsize\textcolor{secondary-indicator-color}{\textsf{临时生命}}}
+\rput[cc](378,779){\Large\textcolor{text-color}{\textsf{/}}}
+\rput[cc](439,779){\Large\textcolor{text-color}{\textsf{+}}}
+\else
 \rput[l](307.26267461,783.326005935){\scriptsize \textcolor{secondary-indicator-color}{\textsf{生命值上限}}}
 \rput[cc](408.51142872,725.3142336){\scriptsize \textcolor{secondary-indicator-color}{\textbf{\textsf{当前生命值}}}}
 \rput[cc](408.51142872,654.7201021){\scriptsize \textcolor{secondary-indicator-color}{\textbf{\textsf{临时生命值}}}}
 
+\fi
+\MKQShiftVitals{%
 \rput[l](307.26267461,622.547876625){\scriptsize \textcolor{secondary-indicator-color}{\textsf{总计}}}
 \rput[cc](351.21998412,579.77462366){\scriptsize \textcolor{secondary-indicator-color}{\textsf{生命骰}}}
 
+\ifdefined\MKQRenderDeathSaves
+% Match the row center, including the TeX-to-drawn-frame horizontal offset.
+\rput[cc](461.928032843,579.77462366){\scriptsize \textcolor{secondary-indicator-color}{\textsf{死亡豁免}}}
+\else
 \rput[r](459.31936706,620.21408931){\tiny \textcolor{secondary-indicator-color}{\textsf{成功}}}
 \rput[r](459.31936706,600.21488980){\tiny \textcolor{secondary-indicator-color}{\textsf{失败}}}
 \rput[cc](464.69891458,579.77462366){\scriptsize \textcolor{secondary-indicator-color}{\textsf{死亡豁免}}}
+\fi
+}
 
 \rput[cc](409.580659095,293.99779994){\scriptsize \textcolor{secondary-indicator-color}{\textbf{\textsf{攻击与施法}}}}
 
