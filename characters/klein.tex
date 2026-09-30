@@ -1,0 +1,404 @@
+% !TeX program = lualatex
+% 放入原工程 characters/，从工程根目录用 LuaLaTeX 编译。
+% 从工程根目录编译：lualatex characters/klein.tex（连续两次）
+% 来源：克莱恩角色卡 (1).docx
+% 转换日期：2026-09-29；保留原卡数据，不代替角色合法性审查。
+% TODO: 原卡未直接写等级；由生命公式、三环法术和灼净亡灵暂按5级转录。若实际不是5级，请同步改生命骰、法术位、准备上限和引导神力次数。
+% TODO: 手铳与链枷攻击加值按最终属性、熟练加值及保护者熟练推导。常态被动察觉为18。
+% TODO: 原卡起始装备记录仍列链甲衫和硬头锤；购买账目显示已出售/替换，因此历史记录保留在附页。
+% TODO: 当前生命、临时生命、剩余生命骰、英雄激励状态原卡未填，保留为空/未勾选。
+\documentclass[letterpaper,openany,twoside,twocolumn]{book}
+\usepackage{bookmark}
+% 原工程有dnd.sty时保持原样式；没有时仅加载角色卡所需的基础包。
+\IfFileExists{dnd.sty}{\usepackage[justified]{dnd}}{\usepackage{tikz}}
+\usepackage{ifthen}
+\usepackage{geometry}
+\usepackage{pstricks}
+\usepackage{fontawesome5}
+\usepackage{multicol}
+\usepackage{amssymb}
+% 最小中文TeX环境也可使用Fandol作为LuaTeX-ja的初始化字体。
+\makeatletter
+\IfFileExists{HaranoAjiMincho-Regular.otf}{}{\def\ltj@stdmcfont{file:FandolSong-Regular.otf}}
+\IfFileExists{HaranoAjiGothic-Medium.otf}{}{\def\ltj@stdgtfont{file:FandolHei-Regular.otf}}
+\makeatother
+\usepackage{dndtemplate}
+\usepackage{luatexja-fontspec}
+
+\IfFontExistsTF{Yozai-Medium}{
+  \setmainjfont[UprightFont=*-Medium,BoldFont=*-Medium,
+    BoldFeatures={FakeBold=2.5}]{Yozai}
+}{
+  \setmainjfont[BoldFont=FandolHei-Bold.otf]{FandolKai-Regular.otf}
+}
+\IfFontExistsTF{Abydos}{\setmainfont{Abydos}}{\setmainfont{Latin Modern Roman}}
+
+% 四个必填参数：环阶、英文名、中文名、附注；每环自动使用 A/B/C… 行。
+% 末尾可加[True]/[False]：锁定勾选/未勾选，且排除准备计数；省略可自由切换。
+\usepackage{mkq-interactive}
+
+\hypersetup{pdftitle={克莱恩·莫雷蒂},pdfsubject={MKQ template character sheet}}
+\PrepareSpellsMKQ{Bless,Protection from Evil and Good,Detect Magic,Cure Wounds,Silence,Blindness/Deafness,Lesser Restoration,Dispel Magic,Mass Healing Word}
+\PreparedLimitMKQ{9}
+
+% 基本资料和原卡最终属性
+\CharacterName{克莱恩·莫雷蒂}
+\Class{诡术牧师 5}
+\Race{人类}
+\Background{调查员}
+\Alignment{}
+\PlayerName{}
+\XP{}
+\StrengthScore{13}
+\StrengthModifier{1}
+\StrengthSavingThrowModifier{1}
+\SetStrengthProficiency{0}
+\DexterityScore{11}
+\DexterityModifier{0}
+\DexteritySavingThrowModifier{0}
+\SetDexterityProficiency{0}
+\ConstitutionScore{18}
+\ConstitutionModifier{4}
+\ConstitutionSavingThrowModifier{4}
+\SetConstitutionProficiency{0}
+\IntelligenceScore{12}
+\IntelligenceModifier{1}
+\IntelligenceSavingThrowModifier{1}
+\SetIntelligenceProficiency{0}
+\WisdomScore{20}
+\WisdomModifier{5}
+\WisdomSavingThrowModifier{8}
+\SetWisdomProficiency{1}
+\CharismaScore{12}
+\CharismaModifier{1}
+\CharismaSavingThrowModifier{4}
+\SetCharismaProficiency{1}
+\AcrobaticsSkillModifier{0}
+\SetAcrobaticsProficiency{0}
+\AnimalHandlingSkillModifier{5}
+\SetAnimalHandlingProficiency{0}
+\ArcanaSkillModifier{1}
+\SetArcanaProficiency{0}
+\AthleticsSkillModifier{1}
+\SetAthleticsProficiency{0}
+\DeceptionSkillModifier{1}
+\SetDeceptionProficiency{0}
+\HistorySkillModifier{4}
+\SetHistoryProficiency{1}
+\InsightSkillModifier{8}
+\SetInsightProficiency{1}
+\IntimidationSkillModifier{1}
+\SetIntimidationProficiency{0}
+\InvestigationSkillModifier{4}
+\SetInvestigationProficiency{1}
+\MedicineSkillModifier{5}
+\SetMedicineProficiency{0}
+\NatureSkillModifier{1}
+\SetNatureProficiency{0}
+\PerceptionSkillModifier{8}
+\SetPerceptionProficiency{1}
+\PerformanceSkillModifier{1}
+\SetPerformanceProficiency{0}
+\PersuasionSkillModifier{1}
+\SetPersuasionProficiency{0}
+\ReligionSkillModifier{4}
+\SetReligionProficiency{1}
+\SleightOfHandSkillModifier{0}
+\SetSleightOfHandProficiency{0}
+\StealthSkillModifier{0}
+\SetStealthProficiency{0}
+\SurvivalSkillModifier{5}
+\SetSurvivalProficiency{0}
+\Proficiency{3}
+\Perception{18}
+\ArmorClass{18}
+\Initiative{3}
+\Speed{30ft}
+\MaxHitPoints{48}
+\MaxHitDice{5d8}
+\CompactVitalsMKQ
+\Inspiration{} % PDF 初始未勾选英雄激励，原位置由原生表单覆盖。
+% 与模板联动：隐藏旧的印刷圆圈/行标签，统一居中绘制交互行。
+\newcommand{\MKQRenderDeathSaves}{%
+  \MKQDeathSaveRow{success}{成功}{\MKQLiftY{620.23745116}}%
+  \MKQDeathSaveRow{failure}{失败}{\MKQLiftY{600.23825166}}%
+}
+\newcommand{\MKQRenderCharacterFields}{%
+  \AddToShipoutPictureFG*{\AtPageLowerLeft{%
+    \MKQAtSheet{143.42533022}{869.816111585}{\MKQCheck[11pt]{heroic-inspiration}{false}{false}{英雄激励：勾选表示拥有}}%
+    % 可输入数值：字段名、提示、初始值、宽、高、字号（后三项单位bp）。
+    \MKQAtSheet{340}{779}{\MKQNumberField{current-hit-points}{当前生命值}{}{38}{18}{16}}%
+    \MKQAtSheet{476}{779}{\MKQNumberField{temporary-hit-points}{临时生命值}{}{38}{18}{16}}%
+    \MKQAtSheet{350.73265790}{\MKQLiftY{600.18398492}}{\MKQNumberField{current-hit-dice}{剩余生命骰数量}{}{52}{19}{18}}%
+    \MKQAtSheet{325.27479187}{141.90639645}{\MKQNumberField{gold-pieces}{金币}{202}{40}{16}{12}}%
+    \MKQRenderDeathSaves%
+  }}%
+}
+
+\CurrentHitPoints{}
+\TemporaryHitPoints{}
+\CurrentHitDice{}
+\CP{}
+\SP{}
+\GP{}
+\EP{}
+\PP{}
+
+\OtherProficienciesLanguages{\small
+\begin{description}
+\item[体型] 中型
+\item[圣职] 保护者；军用武器熟练、重甲受训
+\item[工具] 易容工具
+\item[信仰] 迪尼尔
+\item[法器] 圣徽
+\end{description}}
+\Equipment{\small
+\begin{description}
+\item[精金链甲] AC16；所受重击变为普通命中
+\item[警戒之盾] AC+2；先攻与察觉优势
+\item[耐久法术书] 不惧火烧、浸水，不随时间老化
+\end{description}}
+\PersonalityTraits{\small
+温和有礼，耐心倾听；内心审慎戒备，交叉核对证词。}
+\Ideals{\small
+只要文字留存，真相就不会彻底消亡。}
+\Bonds{\small
+追查家人遇害与记忆被抹去的真相；受迪尼尔教会抄写牧师养育。}
+\Flaws{\small
+不轻易展露伤痛、执念与底牌。}
+\FeaturesTraits{\scriptsize
+\begin{description}
+\item[适应力] 长休获得英雄激励。
+\item[警觉] 先攻加入熟练加值；掷先攻后可与自愿盟友互换。
+\item[锐眼] 搜索或研究中的一次属性检定获得优势；失败不耗次数。
+\item[战地施法者] 感知+1已计入；维持专注的体质豁免优势，支持响应法术与持械姿势成分。
+\item[神圣火花] 魔法动作；30尺，治疗1d8+5，或体质豁免，暗蚀/光耀伤害。
+\item[驱散亡灵] 30尺内所选亡灵感知豁免；失败恐慌、失能，持续1分钟。
+\item[灼净亡灵] 驱散豁免失败的亡灵额外受到5d8光耀，不终止驱散。
+\item[召现分身] 附赠；消耗引导神力；30尺创造幻象，持续1分钟，可借其位置施法。
+\item[诡术祝福] 魔法动作；自己或30尺自愿生物的隐匿检定优势。
+\item[领域法术] 六道固定准备法术在法术页锁定显示，不占普通准备数。
+\end{description}}
+
+% 攻击内容先测量，资源表自动接在其下方
+\AddWeapon{链枷}{+4}{1d8+1 钝击}
+\AddWeapon{手铳}{+3}{1d10 穿刺}
+\AddWeapon{神圣火花}{DC16}{1d8+5}
+\AddWeapon{灼净亡灵}{DC16}{5d8 光耀}
+\AttacksAdditional{\scriptsize
+神圣火花、驱散亡灵与召现分身共用引导神力。警戒之盾使先攻与察觉检定具有优势。}
+\resourceMKQ{引导神力}{2}{短休恢复1；长休全恢复}[id=channel-divinity]
+\resourceMKQ{锐眼}{3}{长休恢复；检定失败不耗}[id=keen-eye]
+
+% 背景页；没有提供的外貌、年龄等信息保持空白。
+\Age{}
+\Height{}
+\Weight{}
+\Eyes{}
+\Skin{}
+\Hair{}
+\CharacterAppearance{}
+\Characterbackground{\small
+生于费伦边陲小镇的普通人家。少年外出采买归来，发现家中满门遇害。 比屠杀更恐怖的是无形的力量：邻里记忆模糊，官府卷宗凭空消失，所有人慢慢淡忘这桩惨案，仿佛他的家人从未存在。记忆会被篡改，证词会被消解，罪恶被遗忘吞噬。
+
+沦为孤儿的他，被迪尼尔教会的抄写牧师收留。教会教导他迪尼尔的圣理：凡不书于卷册之物，终将归于虚无。记忆是脆弱的，唯有文字可以锚定真相。
+
+他选择成为迪尼尔的诡术牧师、教会外勤调查员。随身携带着那本耐久法术书，水火不侵、永不老化，所有证词、疑点、矛盾、异象全部落笔记录。 他学习诡术，不是为了欺骗，而是为了伪装、周旋、保护证据，从谎言与遗忘之中挖出被掩盖的真相。
+
+对外他永远温和有礼，耐心倾听，维持一副无害神职者的假面。内心永远审慎戒备，观察每一处细节，交叉比对所有人的证词。他悲悯无辜之人，但不会轻易展露自己的伤痛、执念与底牌。
+
+他行走各地，调查诡异事件、失踪与记忆扭曲的怪事，一边守护凡人免于被虚妄吞噬；一边持续搜集当年灭门惨案的碎片线索。他坚信：只要文字留存，真相就不会彻底消亡。}
+\AlliesAndOrganizations{\small
+迪尼尔教会的抄写牧师曾收留并养育他。
+
+伦纳德·米切尔：童年好友；仍记得克莱恩家遭遇的变故。}
+\OrganizationName{迪尼尔教会}
+\OrganizationSymbol{}
+\AdditionalFeaturesAndTraits{\small
+等级按原卡生命公式 12+4×(5+4)=48 暂按5级处理。普通准备9道，另有6道领域法术。
+
+初始属性：力量13、敏捷11、体质18、智力11、感知18、魅力11。调查员：智力、感知、魅力各+1；战地施法者：感知+1。
+
+被动察觉18为常态基础值；警戒之盾带来的察觉优势另行适用。}
+\Treasure{\small
+链枷、手铳、子弹20发、笔墨；易容工具、镣铐、铲子、旅行服装、三个小瓶；圣徽、祭司套组。
+
+祭司套组：背包、毯子、圣水、油灯、7天口粮、长袍、火绒盒。原卡购买账目见附页。}
+\SpellcastingClass{诡术牧师 5}
+\SpellcastingAbility{WIS}
+\SpellSaveDC{16}
+\SpellAttackBonus{+8}
+\begin{document}
+% 戏法；这些条目不进入有环法术准备统计。
+\CantripSlotA{Guidance (神导术)}
+\CantripSlotB{Toll the Dead (亡者丧钟)}
+\CantripSlotC{Light (光亮术)}
+\CantripSlotD{Spare the Dying (维生术)}
+
+% 法术位：空白代表原卡未提供，不代表0。确认数量后取消 UsedSlotsMKQ 的注释。
+\FirstLevelSpellSlotsTotal{4}
+\FirstLevelSpellSlotsExpended{}
+\UsedSlotsMKQ{1}{4}
+\SecondLevelSpellSlotsTotal{3}
+\SecondLevelSpellSlotsExpended{}
+\UsedSlotsMKQ{2}{3}
+\ThirdLevelSpellSlotsTotal{2}
+\ThirdLevelSpellSlotsExpended{}
+\UsedSlotsMKQ{3}{2}
+\FourthLevelSpellSlotsTotal{0}
+\FourthLevelSpellSlotsExpended{}
+\FifthLevelSpellSlotsTotal{0}
+\FifthLevelSpellSlotsExpended{}
+
+% 新版四参数 spellMKQ 自动按环阶编号；[True] 是始终准备且不占名额。
+\spellMKQ{1}{Bless}{祝福术}{}
+\spellMKQ{1}{Protection from Evil and Good}{防护善恶}{}
+\spellMKQ{1}{Detect Magic}{侦测魔法}{}
+\spellMKQ{1}{Cure Wounds}{治疗术}{}
+\spellMKQ{1}{Sanctuary}{庇护术}{}
+\spellMKQ{1}{Inflict Wounds}{致伤术}{}
+\spellMKQ{1}{Healing Word}{治愈真言}{}
+\spellMKQ{1}{Detect Evil and Good}{侦测善恶}{}
+\spellMKQ{1}{Charm Person}{魅惑类人}{领域}[True]
+\spellMKQ{1}{Disguise Self}{易容术}{领域}[True]
+\spellMKQ{2}{Silence}{沉默术}{}
+\spellMKQ{2}{Blindness/Deafness}{目盲术/耳聋术}{}
+\spellMKQ{2}{Lesser Restoration}{次等复原术}{}
+\spellMKQ{2}{Aid}{援助术}{}
+\spellMKQ{2}{Calm Emotions}{安定心神}{}
+\spellMKQ{2}{Hold Person}{定身人类}{}
+\spellMKQ{2}{Invisibility}{隐形术}{领域}[True]
+\spellMKQ{2}{Pass without Trace}{行动无踪}{领域}[True]
+\spellMKQ{3}{Dispel Magic}{驱散魔法}{}
+\spellMKQ{3}{Spirit Guardians}{灵体卫士}{}
+\spellMKQ{3}{Sending}{短讯术}{}
+\spellMKQ{3}{Mass Healing Word}{群体治愈真言}{}
+\spellMKQ{3}{Hypnotic Pattern}{催眠图纹}{领域}[True]
+\spellMKQ{3}{Nondetection}{回避侦测}{领域}[True]
+\newcommand{\spellsheetchoice}{\renderhalfspellsheet}
+\newgeometry{left=0cm,right=0cm,top=0cm,bottom=0cm}
+\onecolumn
+\begin{Form}
+\pdfbookmark[0]{Character Sheet}{Character Sheet}
+\rendercharactersheet
+\pdfbookmark[0]{Background Sheet}{Background Sheet}
+\renderbackgroundsheet
+\pdfbookmark[0]{Spellcasting Sheet}{Spellcasting Sheet}
+\spellsheetchoice
+\end{Form}
+
+\clearpage
+\newgeometry{left=18mm,right=18mm,top=17mm,bottom=17mm}
+\onecolumn\pagestyle{empty}
+\normalfont\normalsize
+\setlength{\parindent}{0pt}\setlength{\parskip}{5pt}
+
+\section*{克莱恩·莫雷蒂：附页}
+
+\par\noindent\textbf{转录核对项}\par
+1. 原卡未直接写等级；由生命公式、三环法术和灼净亡灵暂按5级转录。若实际不是5级，请同步改生命骰、法术位、准备上限和引导神力次数。\par
+2. 手铳与链枷攻击加值按最终属性、熟练加值及保护者熟练推导。常态被动察觉为18。\par
+3. 原卡起始装备记录仍列链甲衫和硬头锤；购买账目显示已出售/替换，因此历史记录保留在附页。\par
+4. 当前生命、临时生命、剩余生命骰、英雄激励状态原卡未填，保留为空/未勾选。\par
+
+
+\subsection*{职业与专长详述}
+
+\par\noindent\textbf{适应力}\par
+适应力Resourceful。每当你完成长休时，你都会获得英雄激励。\par
+
+
+\par\noindent\textbf{保护者}\par
+圣职：保护者Protcetor。为战斗做足训练，你获得军用武器熟练与重甲受训。\par
+
+
+\par\noindent\textbf{神圣火花}\par
+①神圣火花Divine Spark。以一个魔法动作，你将你的圣徽指向30尺内一个你可见的其他生物，并将神圣能量凝聚于该生物。投掷1d8加上你的感知调整值，你为该生物恢复该数值的生命或迫使其进行一次体质豁免，失败则受到等同该数值的暗蚀或光耀伤害（由你选择），成功则伤害减半（向下取整）。\par
+
+
+\par\noindent\textbf{驱散亡灵}\par
+②驱散亡灵Turn Undead。以一个魔法动作，你展现圣徽，斥退诸亡灵生物。你30尺内每个由你选择的亡灵都必须进行一次感知豁免，失败则陷入恐慌和失能状态，持续一分钟。在这段持续时间内，被驱散的生物会尽可能远离你。此效应在其受到伤害时提前结束，你陷入失能状态或是死亡也会结束此效应。\par
+
+
+\par\noindent\textbf{召现分身}\par
+③召现分身 Invoke Duplicity\par
+以一个附赠动作，你可以消耗一次引导神力次数来创造一个自己的完美视觉幻象并出现在你身边30尺内一个你能看见且未占据空间。该幻象是无实体的且不占据它所在的空间。幻象持续1分钟，或直至你将其解除（无需动作）或陷入失能状态。这个幻象栩栩如生，能模仿你的表情和姿势。当幻象存在时，你将获得以下好处：\par
+施法Cast Spells。你可以如同你在幻象所在位置施展法术，但必须使用你自己的感官。\par
+干扰Distract。当你和你的幻象都在同一个生物身边5尺内，且该生物可以看见幻象时，由于幻象对目标造成的干扰，你对其进行的攻击检定具有优势。\par
+转移Move。以一个附赠动作，你可以移动幻象至多30尺到达一处空间，该空间必须是你120尺内一处可见的未占据空间。\par
+
+
+\par\noindent\textbf{灼净亡灵}\par
+灼净亡灵 Sear Undead\par
+每当你使用驱散亡灵时，你都可以投掷等于你感知调整值枚d8（最少1d8)，而每个在对抗驱散亡灵的豁免中失败的亡灵都将受到等同于骰值之和的光耀伤害。此伤害不会终止驱散效应。\par
+
+
+\par\noindent\textbf{诡术祝福}\par
+诡术祝福 Blessing of the Trickster\par
+以一个魔法动作，你可以选择自己或30尺内一个自愿生物，所选生物在进行敏捷（隐匿）检定时具有优势。此祝福持续至你完成一次长休或直至你再次使用此特性。\par
+
+
+\par\noindent\textbf{领域法术}\par
+诡术领域法术 Trickery Domain Spells\par
+你与此神圣领域的链接使你始终准备着特定的法术。当你到达诡术领域法术表中特定的牧师等级时，你就始终准备着表中对应的法术。\par
+
+
+\par\noindent\textbf{警觉}\par
+警觉（人类）\par
+你获得以下增益。先攻熟练Initiative Proficiency。当你投掷先攻时，你可以将你的熟练加值加入结果。\par
+先攻互换Initiative Swap。当你掷完先攻，你可以立即与处于同一场战斗中的一名自愿的盟友交换先攻。如果你或那个盟友正处于失能状态，则不能进行交换\par
+
+
+\par\noindent\textbf{锐眼}\par
+当你执行搜索或研究动作时，你能令你作为该动作一部分的任意属性检定具有优势。你能使用此特性的次数等于你的熟练加值，当你完成长休时重获所有已消耗的使用次数。若该次属性检定失败，你不会消耗本特性的使用次数。\par
+
+
+\par\noindent\textbf{战地施法者}\par
+属性值提升Ability Score Increase。你的智力、感知或魅力提升1，至多提升至20。\par
+专注Concentration。你为维持专注的所做的体质豁免具有优势。\par
+响应法术Reactive Spell。当一个生物因离开你的触及范围而引发你的借机攻击时，你能使用你的反应来对这个生物施展一道法术，而非发动一次借机攻击。这道法术的施法时间必须为动作，且必须将该生物选为法术的唯一目标。\par
+姿势成分Somatic Components。即使你的一只手或双手上都有武器/盾牌，你也能满足法术的姿势成分要求。\par
+
+
+\subsection*{装备与账目原记录}
+
+\par\noindent\textbf{原记录}\par
+500+8（1d10）*25=700gp\par
+
+
+\par\noindent\textbf{原记录}\par
++7gb（牧师初始）+16gb（调查员初始）=723gp\par
+
+
+\par\noindent\textbf{原记录}\par
+723-300（警戒之盾）-250（手铳）-5（硬头锤换链枷）+50（链甲衫）-6（子弹）-10（笔墨）=202gp\par
+
+
+\par\noindent\textbf{原记录}\par
+链枷，手铳，手铳子弹*20，笔墨\par
+
+
+\par\noindent\textbf{原记录}\par
+易容工具、镣铐、铲子、旅行服装、三个小瓶\par
+
+
+\par\noindent\textbf{原记录}\par
+链甲衫，盾牌，硬头锤，圣徽，祭司套组（包含以下物品：背包、毯子、圣水、油灯、7天份的口粮、长袍和火绒盒。）\par
+
+
+\par\noindent\textbf{原记录}\par
+耐久法术书（普通）这本法术书及其书页上所写的任何内容都不会因火烧或浸水而受损。此外，这本法术书不会随时间老化。\par
+
+
+\par\noindent\textbf{原记录}\par
+精金链甲（非普通）AC 16这套护甲使用了现存最坚硬的物质之一——精金加以强化。着装该护甲期间，任何对你的重击命中都会变为普通命中。\par
+
+
+\par\noindent\textbf{原记录}\par
+警戒之盾（非普通）AC+2 持握这面盾牌期间，你进行的先攻检定和感知（察觉）检定具有优势。这面盾牌上的纹章是一只眼睛的图案。\par
+
+
+\par\noindent\textbf{人类与背景补充}\par
+人类为类人生物，体型在中型或小型中选择；本角色明确为中型。人类额外一项技能熟练和一项起源专长已分别选为察觉与警觉。调查员背景的属性候选为智力、感知、魅力；技能为洞悉和调查，工具为易容工具。原卡附高等级起始装备参考截图，实际装备与资金以上述购买记录为准。\par
+
+\end{document}

@@ -1,0 +1,431 @@
+% !TeX program = lualatex
+% 放入原工程 characters/，从工程根目录用 LuaLaTeX 编译。
+% 从工程根目录编译：lualatex characters/five-foot-whale.tex（连续两次）
+% 来源：5r角色卡-6级骇人鲸-神秘学者+狂野术.pdf
+% 转换日期：2026-09-29；保留原卡数据，不代替角色合法性审查。
+% TODO: 职业等级为术士3/法师3，HP61、AC16/21、属性及已有技能/豁免加值全部沿用原卡，不重掷或重算生命。
+% TODO: 法术归属是转换假定：原表前六道有环法术归术士，其余十道归法师；分别上限6。请核对油腻术、火焰刀等来源；需分别核对职业归属及每职业6道上限。
+% TODO: 原卡四道仪式视为通晓语言、魔嘴术、侦测魔法、卜筮术；保留未准备且可切换，不使用[False]锁死。魔绳术初始准备。
+% TODO: 侦测魔法在原卡被写作二环，暂按原卡保留并标注；正式游戏前核对。
+% TODO: 禁忌学识所选1环魔契师法术未写，未虚构条目；补齐时在对应spellMKQ末尾加[True]，不占普通准备数。
+% TODO: 原卡魔力泉涌通用段落写2点，超魔法明确写3点；资源采用明确的3点，并在附页保留原文冲突。
+% TODO: 原卡伤害栏列出三道戏法，法术表另列四道，合计7道；原注职业戏法数量与起源赠送的次级幻象如何分配待确认。未补造第8道。
+% TODO: 术法爆发的d8追加上限原文为施法属性调整值，即术士+4；轰雷剑的+7攻击沿原卡保留，武器依据未列。
+\documentclass[letterpaper,openany,twoside,twocolumn]{book}
+\usepackage{bookmark}
+% 原工程有dnd.sty时保持原样式；没有时仅加载角色卡所需的基础包。
+\IfFileExists{dnd.sty}{\usepackage[justified]{dnd}}{\usepackage{tikz}}
+\usepackage{ifthen}
+\usepackage{geometry}
+\usepackage{pstricks}
+\usepackage{fontawesome5}
+\usepackage{multicol}
+\usepackage{amssymb}
+% 最小中文TeX环境也可使用Fandol作为LuaTeX-ja的初始化字体。
+\makeatletter
+\IfFileExists{HaranoAjiMincho-Regular.otf}{}{\def\ltj@stdmcfont{file:FandolSong-Regular.otf}}
+\IfFileExists{HaranoAjiGothic-Medium.otf}{}{\def\ltj@stdgtfont{file:FandolHei-Regular.otf}}
+\makeatother
+\usepackage{dndtemplate}
+\usepackage{luatexja-fontspec}
+
+\IfFontExistsTF{Yozai-Medium}{
+  \setmainjfont[UprightFont=*-Medium,BoldFont=*-Medium,
+    BoldFeatures={FakeBold=2.5}]{Yozai}
+}{
+  \setmainjfont[BoldFont=FandolHei-Bold.otf]{FandolKai-Regular.otf}
+}
+\IfFontExistsTF{Abydos}{\setmainfont{Abydos}}{\setmainfont{Latin Modern Roman}}
+
+% 四个必填参数：环阶、英文名、中文名、附注；每环自动使用 A/B/C… 行。
+% 末尾可加[True]/[False]：锁定勾选/未勾选，且排除准备计数；省略可自由切换。
+\usepackage{mkq-interactive}
+
+\hypersetup{pdftitle={五尺骇人鲸},pdfsubject={MKQ template character sheet}}
+\PrepareSpellsMKQ{Absorb Elements,Chromatic Orb,Grease,Witch Bolt,Scorching Ray,Flame Blade,Shield,False Life,Mage Armor,Misty Step,Mirror Image,Rope Trick}
+% 七道戏法保留在左栏；准备统计移至空白四环区域，避免遮盖戏法。
+
+% 基本资料和原卡最终属性
+\CharacterName{五尺骇人鲸}
+\Class{术士3 / 法师3}
+\Race{流浆体}
+\Background{门镇守卫}
+\Alignment{混乱善良}
+\PlayerName{}
+\XP{}
+\StrengthScore{10}
+\StrengthModifier{0}
+\StrengthSavingThrowModifier{0}
+\SetStrengthProficiency{0}
+\DexterityScore{16}
+\DexterityModifier{3}
+\DexteritySavingThrowModifier{3}
+\SetDexterityProficiency{0}
+\ConstitutionScore{20}
+\ConstitutionModifier{5}
+\ConstitutionSavingThrowModifier{8}
+\SetConstitutionProficiency{1}
+\IntelligenceScore{14}
+\IntelligenceModifier{2}
+\IntelligenceSavingThrowModifier{2}
+\SetIntelligenceProficiency{0}
+\WisdomScore{14}
+\WisdomModifier{2}
+\WisdomSavingThrowModifier{2}
+\SetWisdomProficiency{0}
+\CharismaScore{19}
+\CharismaModifier{4}
+\CharismaSavingThrowModifier{7}
+\SetCharismaProficiency{1}
+\AcrobaticsSkillModifier{3}
+\SetAcrobaticsProficiency{0}
+\AnimalHandlingSkillModifier{2}
+\SetAnimalHandlingProficiency{0}
+\ArcanaSkillModifier{2}
+\SetArcanaProficiency{0}
+\AthleticsSkillModifier{0}
+\SetAthleticsProficiency{0}
+\DeceptionSkillModifier{7}
+\SetDeceptionProficiency{1}
+\HistorySkillModifier{2}
+\SetHistoryProficiency{0}
+\InsightSkillModifier{2}
+\SetInsightProficiency{0}
+\IntimidationSkillModifier{4}
+\SetIntimidationProficiency{0}
+\InvestigationSkillModifier{2}
+\SetInvestigationProficiency{0}
+\MedicineSkillModifier{2}
+\SetMedicineProficiency{0}
+\NatureSkillModifier{2}
+\SetNatureProficiency{0}
+\PerceptionSkillModifier{2}
+\SetPerceptionProficiency{0}
+\PerformanceSkillModifier{4}
+\SetPerformanceProficiency{0}
+\PersuasionSkillModifier{7}
+\SetPersuasionProficiency{1}
+\ReligionSkillModifier{8}
+\SetReligionProficiency{2}
+\SleightOfHandSkillModifier{3}
+\SetSleightOfHandProficiency{0}
+\StealthSkillModifier{3}
+\SetStealthProficiency{0}
+\SurvivalSkillModifier{5}
+\SetSurvivalProficiency{1}
+\Proficiency{3}
+\Perception{12}
+\ArmorClass{16/21}
+\Initiative{3}
+\Speed{30ft}
+\MaxHitPoints{61}
+\MaxHitDice{6d6}
+\CompactVitalsMKQ
+\Inspiration{} % PDF 初始未勾选英雄激励，原位置由原生表单覆盖。
+% 与模板联动：隐藏旧的印刷圆圈/行标签，统一居中绘制交互行。
+\newcommand{\MKQRenderDeathSaves}{%
+  \MKQDeathSaveRow{success}{成功}{\MKQLiftY{620.23745116}}%
+  \MKQDeathSaveRow{failure}{失败}{\MKQLiftY{600.23825166}}%
+}
+\newcommand{\MKQRenderCharacterFields}{%
+  \AddToShipoutPictureFG*{\AtPageLowerLeft{%
+    \MKQAtSheet{143.42533022}{869.816111585}{\MKQCheck[11pt]{heroic-inspiration}{false}{false}{英雄激励：勾选表示拥有}}%
+    % 可输入数值：字段名、提示、初始值、宽、高、字号（后三项单位bp）。
+    \MKQAtSheet{340}{779}{\MKQNumberField{current-hit-points}{当前生命值}{}{38}{18}{16}}%
+    \MKQAtSheet{476}{779}{\MKQNumberField{temporary-hit-points}{临时生命值}{}{38}{18}{16}}%
+    \MKQAtSheet{350.73265790}{\MKQLiftY{600.18398492}}{\MKQNumberField{current-hit-dice}{剩余生命骰数量}{}{52}{19}{18}}%
+    \MKQAtSheet{325.27479187}{141.90639645}{\MKQNumberField{gold-pieces}{金币}{4200}{40}{16}{12}}%
+    \MKQRenderDeathSaves%
+  }}%
+}
+
+\CurrentHitPoints{}
+\TemporaryHitPoints{}
+\CurrentHitDice{}
+\CP{}
+\SP{}
+\GP{}
+\EP{}
+\PP{}
+
+\OtherProficienciesLanguages{\small
+\begin{description}
+\item[体型] 中型
+\item[背景补充] 门镇守卫，异度风景
+\item[武器熟练] 简易武器
+\item[工具] 赌具
+\item[语言] 通用语、深渊语、天界语、原初语
+\item[抗性] 强酸、毒素；防中毒豁免优势
+\end{description}}
+\Equipment{\small
+\begin{description}
+\item[魔术袋] 原卡未注明种类与使用细节
+\item[幻象牌组] 原卡未注明剩余牌数
+\item[万法无常帽] 列在魔法物品同调栏；状态未填
+\end{description}}
+\PersonalityTraits{}
+\Ideals{}
+\Bonds{}
+\Flaws{}
+\FeaturesTraits{\scriptsize
+\begin{description}
+\item[先天术法] 附赠；持续1分钟；术士法术DC+1，术士法术攻击优势。
+\item[魔力泉涌] 以术法点转换法术位；原卡专项标注3点。
+\item[超魔法] 孪生法术消耗1点；瞬发法术消耗2点。
+\item[狂野浪涌] 一回合一次；用法术位施术士法术后可掷d20，20触发浪涌。
+\item[混乱之潮] D20检定掷骰前取得优势；法术位施术恢复时自动触发浪涌。
+\item[仪式学家] 持法术书，可仪式施展书中的仪式法术，无需准备。
+\item[学者] 宗教专精，+8。
+\item[禁忌学识] 深渊语；始终准备一道可于长休更换的1环魔契师法术，名称未填。
+\item[侵扰] 侵扰骰初始d8；使用压制心智或追踪之眼时冒侵扰风险。
+\item[种族与专长] 无定型体、60尺黑暗视觉、屏息1小时、变化自身；外层位面后裔、混乱与共者。
+\end{description}}
+
+% 攻击内容先测量，资源表自动接在其下方
+\AddWeapon{术法爆发}{+7}{2d8}
+\AddWeapon{轰雷剑}{+7}{+1d8 雷鸣}
+\AddWeapon{毒气喷涌}{+7}{2d12 毒素}
+\AttacksAdditional{\scriptsize
+护盾术期间AC21，平时16。轰雷剑的移动触发伤害为2d8；武器本身伤害原卡未列。}
+\resourceMKQ{先天术法}{2}{长休恢复；附赠，1分钟}[id=innate-sorcery]
+\resourceMKQ{术法点}{3}{长休恢复；原卡明确3点}[id=sorcery-points]
+\resourceMKQ{混乱之潮}{1}{长休或法术位施术时恢复}[id=tides-of-chaos]
+\resourceMKQ{奥术回想}{1}{长休恢复；回想总环阶2}[id=arcane-recovery]
+
+% 背景页；没有提供的外貌、年龄等信息保持空白。
+\Age{}
+\Height{}
+\Weight{}
+\Eyes{}
+\Skin{}
+\Hair{}
+\CharacterAppearance{\small
+外星人。}
+\Characterbackground{}
+\AlliesAndOrganizations{}
+\OrganizationName{}
+\OrganizationSymbol{}
+\AdditionalFeaturesAndTraits{\small
+子职：狂野术／神秘学者。施法属性调整值+4／+2，法术DC15／13，攻击+7／+5。
+
+原卡写“术士4戏法/6准备；法师3戏法/6准备+4仪式”。本卡将前六道有环法术暂归术士，其余十道暂归法师；普通准备合计12/12；术士与法师仍需各自不超过6道。
+
+侵扰骰与混乱耀斑的完整处理保留在附页。}
+\Treasure{\small
+金币4200gp。魔术袋、幻象牌组与万法无常帽的次数、充能或具体效果未填写，未擅自建立固定次数。
+
+术士/法师法术归属、禁忌学识所选法术、侦测魔法环阶及若干原卡数值冲突见源码TODO与附页。}
+\SpellcastingClass{术士3 / 法师3}
+\SpellcastingAbility{魅 / 智}
+\SpellSaveDC{15 / 13}
+\SpellAttackBonus{+7 / +5}
+% 沿用原模板的合计统计；两职业各6道的限制仍须分别核对。
+\PreparedLimitMKQ{12}
+% 只移动原模板统计框，避开第七道戏法；不引入新的统计实现。
+\ExplSyntaxOn
+\patchcmd{\mkq_render_counter:}{\MKQAtSheet{157}{660}}{\MKQAtSheet{657}{731}}{}{}
+\patchcmd{\mkq_render_counter:}{\MKQAtSheet{156}{657}}{\MKQAtSheet{656}{728}}{}{}
+\ExplSyntaxOff
+\begin{document}
+% 戏法；这些条目不进入有环法术准备统计。
+\CantripSlotA{Sorcerous Burst (术法爆发)}
+\CantripSlotB{Booming Blade (轰雷剑)}
+\CantripSlotC{Poison Spray (毒气喷涌)}
+\CantripSlotD{Mage Hand (法师之手)}
+\CantripSlotE{Minor Illusion (次级幻象)}
+\CantripSlotF{Prestidigitation (魔法伎俩)}
+\CantripSlotG{Friends (交友术)}
+
+% 法术位：空白代表原卡未提供，不代表0。确认数量后取消 UsedSlotsMKQ 的注释。
+\FirstLevelSpellSlotsTotal{4}
+\FirstLevelSpellSlotsExpended{}
+\UsedSlotsMKQ{1}{4}
+\SecondLevelSpellSlotsTotal{3}
+\SecondLevelSpellSlotsExpended{}
+\UsedSlotsMKQ{2}{3}
+\ThirdLevelSpellSlotsTotal{3}
+\ThirdLevelSpellSlotsExpended{}
+\UsedSlotsMKQ{3}{3}
+\FourthLevelSpellSlotsTotal{0}
+\FourthLevelSpellSlotsExpended{}
+\FifthLevelSpellSlotsTotal{0}
+\FifthLevelSpellSlotsExpended{}
+
+% 新版四参数 spellMKQ 自动按环阶编号；[True] 是始终准备且不占名额。
+\spellMKQ{1}{Absorb Elements}{吸收元素}{反应}
+\spellMKQ{1}{Chromatic Orb}{繁彩球}{3d8}
+\spellMKQ{1}{Grease}{油腻术}{DC15}
+\spellMKQ{1}{Witch Bolt}{巫术箭}{2d12}
+\spellMKQ{2}{Scorching Ray}{灼热射线}{2d6}
+\spellMKQ{2}{Flame Blade}{火焰刀}{3d6+4}
+\spellMKQ{1}{Shield}{护盾术}{反应}
+\spellMKQ{1}{Comprehend Languages}{通晓语言}{仪式}
+\spellMKQ{1}{False Life}{虚假生命}{}
+\spellMKQ{1}{Mage Armor}{法师护甲}{}
+\spellMKQ{2}{Misty Step}{迷踪步}{附赠}
+\spellMKQ{2}{Mirror Image}{镜影术}{1min}
+\spellMKQ{2}{Magic Mouth}{魔嘴术}{仪式}
+% TODO: 原卡把侦测魔法填在二环；本次按原记录转录，正式游戏前核对环阶（通常为一环）。
+\spellMKQ{2}{Detect Magic}{侦测魔法}{原卡2环}
+\spellMKQ{2}{Augury}{卜筮术}{仪式}
+\spellMKQ{2}{Rope Trick}{魔绳术}{}
+% TODO: 补齐禁忌学识选择后，登记如下；名称与环阶需改成实际选择：
+% \spellMKQ{1}{Chosen Warlock Spell}{实际中文名}{禁忌学识}[True]
+\newcommand{\spellsheetchoice}{\renderhalfspellsheet}
+\newgeometry{left=0cm,right=0cm,top=0cm,bottom=0cm}
+\onecolumn
+\begin{Form}
+\pdfbookmark[0]{Character Sheet}{Character Sheet}
+\rendercharactersheet
+\pdfbookmark[0]{Background Sheet}{Background Sheet}
+\renderbackgroundsheet
+\pdfbookmark[0]{Spellcasting Sheet}{Spellcasting Sheet}
+\spellsheetchoice
+\end{Form}
+
+\clearpage
+\newgeometry{left=18mm,right=18mm,top=17mm,bottom=17mm}
+\onecolumn\pagestyle{empty}
+\normalfont\normalsize
+\setlength{\parindent}{0pt}\setlength{\parskip}{5pt}
+
+\section*{五尺骇人鲸：附页}
+
+\par\noindent\textbf{转录核对项}\par
+1. 职业等级为术士3/法师3，HP61、AC16/21、属性及已有技能/豁免加值全部沿用原卡，不重掷或重算生命。\par
+2. 法术归属是转换假定：原表前六道有环法术归术士，其余十道归法师；分别上限6。请核对油腻术、火焰刀等来源；需分别核对职业归属及每职业6道上限。\par
+3. 原卡四道仪式视为通晓语言、魔嘴术、侦测魔法、卜筮术；保留未准备且可切换，不使用[False]锁死。魔绳术初始准备。\par
+4. 侦测魔法在原卡被写作二环，暂按原卡保留并标注；正式游戏前核对。\par
+5. 禁忌学识所选1环魔契师法术未写，未虚构条目；补齐时在对应spellMKQ末尾加[True]，不占普通准备数。\par
+6. 原卡魔力泉涌通用段落写2点，超魔法明确写3点；资源采用明确的3点，并在附页保留原文冲突。\par
+7. 原卡伤害栏列出三道戏法，法术表另列四道，合计7道；原注职业戏法数量与起源赠送的次级幻象如何分配待确认。未补造第8道。\par
+8. 术法爆发的d8追加上限原文为施法属性调整值，即术士+4；轰雷剑的+7攻击沿原卡保留，武器依据未列。\par
+
+
+\par\noindent\textbf{先天术法}\par
+先天术法 Innate Sorcery\par
+你过去经历的某件事在你身上留下了不可磨灭的印记，为你注入了难以控制的涌动魔力。以一个附赠动作，你可以将魔力释放而出，持续1分钟。在这1分钟期间，你获得以下增益：\par
+1.你的术士法术豁免DC+1； 2.你在你施展的术士法术的攻击检定中具有优势。\par
+可以使用此特性两次，你在完成一次长休时重获所有已消耗的使用次数。\par
+
+
+\par\noindent\textbf{魔力泉涌与超魔法}\par
+魔力泉涌 Font of Magic\par
+你汲取体内的魔力之源，从中涌现的魔力体现为你的可用术法点。你可以使用术法点创造各种魔法效应。你拥有2点术法点，你在到达更高等级时获得更多术法点，如同术士特性表中术法\par
+点一栏所示。你无法拥有比表格中对应数量更多的术法点。你在完成一次长休时重获所有已消耗的术法点。\par
+你可以消耗你的术法点来使用以下特性，例如超魔法。\par
+法术位转化为术法点Converting Spell Slots to Sorcery Points。你可以消耗一个法术位来获得等同于其环位的术法点（无需动作）。\par
+创造法术位Creating Spell Slots。以一个附赠动作，你可以将未消耗的术法点转化为一个法术位。创造法术位表格中展示了创造法术位所需的术法点以及创造它所需的最小术士等级。你\par
+无法创造高于五环的法术位。\par
+超魔法 Metamagic 你使用你所选的超魔法来临时改变你施展的法术。当你施展一道法术时，你只能在其上应用一次超魔法选项，除非超魔法选项中另有说明。\par
+超魔法选项：【孪生法术】1消耗  【瞬发法术】2消耗 术法点【3点】\par
+
+
+\par\noindent\textbf{狂野魔法浪涌}\par
+狂野魔法浪涌 Wild Magic Surge\par
+一回合一次，消耗法术位施展一道术士法术后，可以立刻骰一次d20。如果出20，则触发狂野魔法浪涌。若掷出的魔法效应是一道法术，该法术无法受你的超魔法影响。\par
+
+
+\par\noindent\textbf{混乱之潮}\par
+混乱之潮 Tide of Chaos\par
+你可以驾驭机运的力量，以使一次自身的D20检定具有优势。你必须在掷出d20之前决定是否使用此特性。此特性一经使用，在你完成长休后才能再次被使用。\par
+此特性在你使用法术位施展术士法术时也会恢复可用，但此时你会自动于狂野魔法浪涌表上掷骰。\par
+
+
+\par\noindent\textbf{仪式学家}\par
+仪式学家 Ritual Adept\par
+你能以仪式施展你法术书中任何带有仪式标签的法术。你不需要准备这些法术，但你以此法施展法术时必须阅读这本书。\par
+
+
+\par\noindent\textbf{奥术回想}\par
+奥术回想 Arcane Recovery\par
+完成短休时，你可以选择恢复已消耗的法术位。这些法术位的环阶总和不可大于你法师等级的一半（向上取整）。此特性一经使用，直至完成长休你都无法再次使用。\par
+
+
+\par\noindent\textbf{学者}\par
+学者 Scholar\par
+选择一项你具有熟练的技能：奥秘、历史、调查、医药、自然或宗教。你获得所选技能的专精。（选择宗教）\par
+
+
+\par\noindent\textbf{禁忌学识}\par
+禁忌学识 Forbidden Knowledge\par
+掌握了深渊语。从魔契师法术列表中选择一道1环法术。你始终准备了该法术。当你完成一次长休时，你可以更改你所选择的法术。\par
+
+
+\par\noindent\textbf{侵扰}\par
+侵扰 Intrusion\par
+拥有一枚侵扰骰 初始d8，使用一个具有侵扰风险的特性时，投掷你的侵扰骰。若掷出2或更高，则不会发生侵扰，并且侵扰骰的尺寸会在序列中减小一级。若掷出1，侵扰骰的尺寸会增大\par
+一级，并且你需要查阅侵扰表，以确定当现实破裂时会发生什么。侵扰效应使用你的法术豁免DC。当你完成一次短休时，侵扰骰的尺寸会增大一级（最高不超过其初始尺寸）；而当你完\par
+成一次长休时，它会重置为初始尺寸。使用法术位施展一道法术时，你可以冒着侵扰风险选择以下其中一项：\par
+1.压制心智Overwhelming Mind。 该法术的一个目标为对抗该法术而进行的第一次豁免检定具有劣势。\par
+2.追踪之眼Seeking Eye。 你为该法术进行的第一次攻击检定具有优势。\par
+
+
+\par\noindent\textbf{种族特性}\par
+无定型体 Amorphous。只要你没有携带或穿着任何东西，你就能跻身通过\par
+最窄1寸宽的空间。你为发起或逃脱擒抱所进行的属性检定具有优势。\par
+黑暗视觉 Darkvision。在微光光照下，你身边 60 尺内可以视为等同于明亮\par
+光照。而在黑暗中，该范围内可视为等同于微光光照。你无法在黑暗中分辨\par
+颜色，只能看到有灰度的黑白画面。\par
+屏息 Hold Breath。 你能屏住呼吸达1个小时。\par
+天生坚韧 Natural Resilience。 你具有强酸和毒素伤害的抗性，你为防止\par
+陷入中毒状态所做的豁免具有优势。\par
+变化自身 Shape Self。 使用一个动作，你可以重塑你的身体，让你拥有\par
+一个头、1\textasciitilde{}2只手臂、1\textasciitilde{}2条腿，以及临时的手和脚，你也可以变回没有\par
+肢体的浆团。当你具有人类般的身形时，你能穿着和你体型相同的类人生\par
+物的衣服和护甲。以一个附赠动作，你能挤出一条伪肢（或是将已有的伪\par
+肢收回你的体内），这条伪肢至多 6 寸宽，10 尺长。作为该附赠动作的\par
+一部分，你能用这条伪肢操纵一个物件，打开或关闭一扇门或容器，或是\par
+捡起或放下一个微型物件。这条伪肢不具有感知器官，不能用来攻击、激\par
+活魔法物品，或是举起超过 10 磅重的物体。\par
+
+
+\par\noindent\textbf{起源专长与混乱耀斑}\par
+起源专长：外层位面后裔：混乱外层 毒素抗性 戏法次级幻象\par
+混乱与共者 体质+1 当你在一次攻击检定或豁免检定中骰出了1或20时，混乱的魔力将涌\par
+入你的身躯。投掷D4，根据骰值决定将发生混乱耀斑表上的哪个事件。耀斑将持续到你\par
+的下个回合结束，在首次混乱耀斑结束前你无法触发下次混乱耀斑效应。\par
+D4 耀斑效应\par
+1 战斗狂热Battle Fury。 你可见的，由你选择的一名生物将被灌注入无我的狂怒。他\par
+进行的任何攻击检定都将具有优势，但进行属性检定时将具有劣势。\par
+2 扰乱力场Disruption Field。 能量波环绕在你的身旁。任何在你5尺内开始其回合的\par
+生物以及在回合中首次移动进入此范围的生物将受到1d8力场伤害。\par
+3 限制解除Unbound。当你移动时，你可以使用你部分或全部的步行速度来传送自身\par
+一次，你身上携带或穿着的装备将一同传送，你将传送至一定距离内你可见的未占据空\par
+间，距离至多等于你所使用的步行速度。（译注：原文就是使用速度，而不是消耗移动\par
+力。）\par
+4 狂风呼啸Wailing Winds。 以你为中心，呼啸的狂风将充斥在这半径15尺的球状区\par
+域内。你与任何其他在这片区域内的生物进行的感知豁免都将具有劣势。\par
+
+
+\par\noindent\textbf{伤害戏法}\par
+术法爆发：120尺，V/S，攻击+7，伤害2d8。可选择强酸、寒冷、火焰、闪电、毒素、心灵或雷鸣。任一d8为8可额外掷1d8，额外骰数量上限为施法属性调整值。\par
+轰雷剑：近战攻击+7，命中额外1d8雷鸣；目标在你下回合前主动移动至少5尺，受2d8雷鸣，效应结束。武器基础伤害未填。\par
+毒气喷涌：30尺，攻击+7，2d12毒素。\par
+
+
+\par\noindent\textbf{法术原注}\par
+次级幻象：DC15智力调查；交友术：DC15感知豁免。\par
+吸收元素：反应；对强酸、寒冷、火焰、闪电或雷鸣获得抗性，下回合第一次近战攻击命中额外1d6同类伤害。原行另写+7。\par
+繁彩球：90尺，攻击+7，3d8；若两骰数字相同，可跃向原目标30尺内另一目标；更高环阶才可继续跳跃。\par
+油腻术：60尺，DC15，10尺方形区域；困难地形，敏捷豁免失败倒地。\par
+巫术箭：60尺，攻击+7，2d12；后续每回合附赠动作造成1d12闪电。\par
+灼热射线：120尺，攻击+7，每束2d6。\par
+火焰刀：专注10分钟；原卡记3d6+4，附赠动作。\par
+镜影术：1分钟；命中时为每个剩余分身掷d6，任一为3或以上则一分身代受命中并摧毁。\par
+通晓语言、魔嘴术、侦测魔法、卜筮术在原卡带“仪式”注记。\par
+
+
+\par\noindent\textbf{魔绳术原文}\par
+你接触一段绳子。绳的一端会向上升起，直到整条\par
+绳索都垂直于地面挂在空中或绳子触及天花板。绳\par
+子向上的末端存在一个隐形的3尺×5尺大小的传送\par
+门，其通往一个法术持续时间内一直存在的异次元\par
+空间。沿着绳子向上攀爬即可进入此空间，绳子也\par
+可被拽入空间中或从空间中丢出。空间可容纳至多\par
+八名体型不超过中型的生物。攻击，法术和其他效\par
+应均无法穿过空间而出入，但空间内的生物可以通\par
+过入口看到外面的景象。法术终止时，异次元空间\par
+内的一切东西都会掉出来。\par
+
+\end{document}

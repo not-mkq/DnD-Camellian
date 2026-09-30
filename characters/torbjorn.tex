@@ -1,0 +1,310 @@
+% !TeX program = lualatex
+% 放入原工程 characters/，从工程根目录用 LuaLaTeX 编译。
+% 从工程根目录编译：lualatex characters/torbjorn.tex（连续两次）
+% 来源：托比昂-奇械师 (1).pdf
+% 转换日期：2026-09-29；保留原卡数据，不代替角色合法性审查。
+% TODO: 豁免勾选严格照原PDF：智力、感知、魅力。可能将侏儒豁免优势误当成熟练；请核对体质/智力职业豁免与种族优势，转换时未悄悄改动。
+% TODO: 本次以新上传的“托比昂-奇械师 (1).pdf”为准：补入六道自选准备法术和轰雷剑。普通准备初始为6道，四道炼金师法术固定准备且不计数；准备上限原卡未写，标为?，确认采用的奇械师版本后填写。
+% TODO: 轰雷剑的武器与攻击加值原卡未写，保留待填；其额外1d8与移动2d8照录。疗伤术保留原注2d8，未自行改算治疗量。
+% TODO: 幸运专长没有正文或次数；不擅自加资源次数。仿制魔法物品方案与灵药效果表也未提供。
+% TODO: 以PDF表单/V完整内容为准，恢复原页面上被裁切的职业、种族和专长文字。
+% TODO: 原卡一处空白同调格被勾选，但未写物品名称，因此不虚构已同调装备。
+% TODO: 当前HP48、临时HP0、金币650来自原字段；毒气喷涌攻击加值按原卡施法攻击+8补齐。
+\documentclass[letterpaper,openany,twoside,twocolumn]{book}
+\usepackage{bookmark}
+% 原工程有dnd.sty时保持原样式；没有时仅加载角色卡所需的基础包。
+\IfFileExists{dnd.sty}{\usepackage[justified]{dnd}}{\usepackage{tikz}}
+\usepackage{ifthen}
+\usepackage{geometry}
+\usepackage{pstricks}
+\usepackage{fontawesome5}
+\usepackage{multicol}
+\usepackage{amssymb}
+% 最小中文TeX环境也可使用Fandol作为LuaTeX-ja的初始化字体。
+\makeatletter
+\IfFileExists{HaranoAjiMincho-Regular.otf}{}{\def\ltj@stdmcfont{file:FandolSong-Regular.otf}}
+\IfFileExists{HaranoAjiGothic-Medium.otf}{}{\def\ltj@stdgtfont{file:FandolHei-Regular.otf}}
+\makeatother
+\usepackage{dndtemplate}
+\usepackage{luatexja-fontspec}
+
+\IfFontExistsTF{Yozai-Medium}{
+  \setmainjfont[UprightFont=*-Medium,BoldFont=*-Medium,
+    BoldFeatures={FakeBold=2.5}]{Yozai}
+}{
+  \setmainjfont[BoldFont=FandolHei-Bold.otf]{FandolKai-Regular.otf}
+}
+\IfFontExistsTF{Abydos}{\setmainfont{Abydos}}{\setmainfont{Latin Modern Roman}}
+
+% 四个必填参数：环阶、英文名、中文名、附注；每环自动使用 A/B/C… 行。
+% 末尾可加[True]/[False]：锁定勾选/未勾选，且排除准备计数；省略可自由切换。
+\usepackage{mkq-interactive}
+
+\hypersetup{pdftitle={Torbjorn Lindholm},pdfsubject={MKQ template character sheet}}
+\PrepareSpellsMKQ{Absorb Elements,Tasha's Caustic Brew,Cure Wounds,Lesser Restoration,Heat Metal,Homunculus Servant}
+
+% 基本资料和原卡最终属性
+\CharacterName{Torbjorn Lindholm}
+\Class{炼金奇械师 5}
+\Race{岩石侏儒}
+\Background{商人}
+\Alignment{}
+\PlayerName{}
+\XP{}
+\StrengthScore{12}
+\StrengthModifier{1}
+\StrengthSavingThrowModifier{1}
+\SetStrengthProficiency{0}
+\DexterityScore{14}
+\DexterityModifier{2}
+\DexteritySavingThrowModifier{2}
+\SetDexterityProficiency{0}
+\ConstitutionScore{18}
+\ConstitutionModifier{4}
+\ConstitutionSavingThrowModifier{4}
+\SetConstitutionProficiency{0}
+\IntelligenceScore{20}
+\IntelligenceModifier{5}
+\IntelligenceSavingThrowModifier{8}
+\SetIntelligenceProficiency{1}
+\WisdomScore{14}
+\WisdomModifier{2}
+\WisdomSavingThrowModifier{5}
+\SetWisdomProficiency{1}
+\CharismaScore{9}
+\CharismaModifier{-1}
+\CharismaSavingThrowModifier{2}
+\SetCharismaProficiency{1}
+\AcrobaticsSkillModifier{2}
+\SetAcrobaticsProficiency{0}
+\AnimalHandlingSkillModifier{5}
+\SetAnimalHandlingProficiency{1}
+\ArcanaSkillModifier{8}
+\SetArcanaProficiency{1}
+\AthleticsSkillModifier{1}
+\SetAthleticsProficiency{0}
+\DeceptionSkillModifier{-1}
+\SetDeceptionProficiency{0}
+\HistorySkillModifier{5}
+\SetHistoryProficiency{0}
+\InsightSkillModifier{2}
+\SetInsightProficiency{0}
+\IntimidationSkillModifier{-1}
+\SetIntimidationProficiency{0}
+\InvestigationSkillModifier{8}
+\SetInvestigationProficiency{1}
+\MedicineSkillModifier{2}
+\SetMedicineProficiency{0}
+\NatureSkillModifier{5}
+\SetNatureProficiency{0}
+\PerceptionSkillModifier{2}
+\SetPerceptionProficiency{0}
+\PerformanceSkillModifier{-1}
+\SetPerformanceProficiency{0}
+\PersuasionSkillModifier{2}
+\SetPersuasionProficiency{1}
+\ReligionSkillModifier{5}
+\SetReligionProficiency{0}
+\SleightOfHandSkillModifier{2}
+\SetSleightOfHandProficiency{0}
+\StealthSkillModifier{2}
+\SetStealthProficiency{0}
+\SurvivalSkillModifier{2}
+\SetSurvivalProficiency{0}
+\Proficiency{3}
+\Perception{12}
+\ArmorClass{15}
+\Initiative{2}
+\Speed{30ft}
+\MaxHitPoints{48}
+\MaxHitDice{5d8}
+\CompactVitalsMKQ
+\Inspiration{} % PDF 初始未勾选英雄激励，原位置由原生表单覆盖。
+% 与模板联动：隐藏旧的印刷圆圈/行标签，统一居中绘制交互行。
+\newcommand{\MKQRenderDeathSaves}{%
+  \MKQDeathSaveRow{success}{成功}{\MKQLiftY{620.23745116}}%
+  \MKQDeathSaveRow{failure}{失败}{\MKQLiftY{600.23825166}}%
+}
+\newcommand{\MKQRenderCharacterFields}{%
+  \AddToShipoutPictureFG*{\AtPageLowerLeft{%
+    \MKQAtSheet{143.42533022}{869.816111585}{\MKQCheck[11pt]{heroic-inspiration}{false}{false}{英雄激励：勾选表示拥有}}%
+    % 可输入数值：字段名、提示、初始值、宽、高、字号（后三项单位bp）。
+    \MKQAtSheet{340}{779}{\MKQNumberField{current-hit-points}{当前生命值}{48}{38}{18}{16}}%
+    \MKQAtSheet{476}{779}{\MKQNumberField{temporary-hit-points}{临时生命值}{0}{38}{18}{16}}%
+    \MKQAtSheet{350.73265790}{\MKQLiftY{600.18398492}}{\MKQNumberField{current-hit-dice}{剩余生命骰数量}{}{52}{19}{18}}%
+    \MKQAtSheet{325.27479187}{141.90639645}{\MKQNumberField{gold-pieces}{金币}{650}{40}{16}{12}}%
+    \MKQRenderDeathSaves%
+  }}%
+}
+
+\CurrentHitPoints{}
+\TemporaryHitPoints{}
+\CurrentHitDice{}
+\CP{}
+\SP{}
+\GP{}
+\EP{}
+\PP{}
+
+\OtherProficienciesLanguages{\small
+\begin{description}
+\item[体型] 小型
+\item[武器熟练] 简易武器
+\item[护甲受训] 轻甲、中甲、盾牌
+\item[工具] 领航工具、盗贼工具、修补工具、炼金工具、草药工具
+\item[语言] 通用语、矮人语、精灵语
+\end{description}}
+\Equipment{}
+\PersonalityTraits{}
+\Ideals{}
+\Bonds{}
+\Flaws{}
+\FeaturesTraits{\scriptsize
+\begin{description}
+\item[工艺魔法] 习得修复术；持修补工具，以魔法动作在5尺未占据空间创造物品。
+\item[仿制魔法物品] 知晓奥术方案；具体方案、已制物品原卡未列。
+\item[行业工具] 炼金工具、草药工具熟练；重复熟练可换其他工匠工具。
+\item[药剂酿造] 依《城主指南》规则制造药水，所需时间减半。
+\item[炼金师法术] 四道始终准备法术已在法术页锁定；不计入自选准备数。
+\item[实验性灵药] 长休时持炼金工具制造两瓶，饮用触发效果；下次长休失效。
+\item[黑暗视觉] 60尺。
+\item[侏儒狡黠] 智力、感知、魅力豁免优势。
+\item[岩石侏儒] 修复术、魔法伎俩；可制造微型发条装置，最多3台。
+\item[幸运] 原卡只列专长名称，未填写次数或说明。
+\item[战地施法者] 维持专注的体质豁免优势；响应法术；持械时可满足姿势成分。
+\end{description}}
+
+% 攻击内容先测量，资源表自动接在其下方
+\AddWeapon{毒气喷涌}{+8}{2d12 毒素}
+\AddWeapon{轰雷剑}{待填}{+1d8 雷鸣}
+\AttacksAdditional{\scriptsize
+法术攻击+8、豁免DC16。轰雷剑移动触发2d8雷鸣；武器及攻击加值待填。疗伤术原注2d8；次等复原术原注解除目盲、耳聋、中毒。}
+\resourceMKQ{实验性灵药}{2}{长休制造2瓶；勾选已用}[id=experimental-elixir]
+\resourceMKQ{发条装置}{3}{勾选表示在用；8小时解体}[id=clockwork-device]
+
+% 背景页；没有提供的外貌、年龄等信息保持空白。
+\Age{}
+\Height{}
+\Weight{}
+\Eyes{}
+\Skin{}
+\Hair{}
+\CharacterAppearance{}
+\Characterbackground{}
+\AlliesAndOrganizations{}
+\OrganizationName{}
+\OrganizationSymbol{}
+\AdditionalFeaturesAndTraits{\small
+原卡将智力、感知、魅力豁免圆点勾选，未勾选体质。本次照录标记并计算加值；这些标记可能混入“侏儒狡黠”的优势含义，正式游戏前需核对熟练。
+
+更新版列出六道自选准备法术，已全部勾选；准备上限原卡未填，上限确认前暂不显示统计框。四道炼金师固定法术单列。
+
+毒气喷涌与轰雷剑均来自攻击栏；轰雷剑的武器与熟练依据待填写。}
+\Treasure{\small
+金币650gp。装备、魔法物品名称、仿制方案、背景故事及外貌均未填写，保留空白。
+
+修复术在职业和种族特性中重复出现，法术页合并成一个条目。完整职业、种族和专长说明见附页。}
+\SpellcastingClass{炼金奇械师 5}
+\SpellcastingAbility{INT}
+\SpellSaveDC{16}
+\SpellAttackBonus{+8}
+% 原卡准备上限未确认；原模板仅支持整数上限，暂隐藏统计框，准备圆圈保持可点击。
+\ExplSyntaxOn
+\cs_set_protected:Npn \mkq_render_counter: {}
+\ExplSyntaxOff
+\begin{document}
+% 戏法；这些条目不进入有环法术准备统计。
+\CantripSlotA{Poison Spray (毒气喷涌)}
+\CantripSlotB{Booming Blade (轰雷剑)}
+\CantripSlotC{Prestidigitation (魔法伎俩)}
+\CantripSlotD{Mending (修复术)}
+
+% 法术位：空白代表原卡未提供，不代表0。确认数量后取消 UsedSlotsMKQ 的注释。
+\FirstLevelSpellSlotsTotal{4}
+\FirstLevelSpellSlotsExpended{}
+\UsedSlotsMKQ{1}{4}
+\SecondLevelSpellSlotsTotal{2}
+\SecondLevelSpellSlotsExpended{}
+\UsedSlotsMKQ{2}{2}
+\ThirdLevelSpellSlotsTotal{0}
+\ThirdLevelSpellSlotsExpended{}
+\FourthLevelSpellSlotsTotal{0}
+\FourthLevelSpellSlotsExpended{}
+\FifthLevelSpellSlotsTotal{0}
+\FifthLevelSpellSlotsExpended{}
+
+% 新版四参数 spellMKQ 自动按环阶编号；[True] 是始终准备且不占名额。
+\spellMKQ{1}{Healing Word}{治愈真言}{炼金}[True]
+\spellMKQ{1}{Ray of Sickness}{致病射线}{炼金}[True]
+\spellMKQ{2}{Flaming Sphere}{炽焰法球}{炼金}[True]
+\spellMKQ{2}{Melf's Acid Arrow}{马友夫强酸箭}{炼金}[True]
+\spellMKQ{1}{Absorb Elements}{吸收元素}{反应}
+\spellMKQ{1}{Tasha's Caustic Brew}{塔莎酸蚀酿}{}
+\spellMKQ{1}{Cure Wounds}{疗伤术}{2d8}
+\spellMKQ{2}{Lesser Restoration}{次等复原术}{}
+\spellMKQ{2}{Heat Metal}{灼热金属}{2d8火焰}
+\spellMKQ{2}{Homunculus Servant}{人工生命仆从}{}
+% 更新版六道职业自选法术已登记；普通自选法术不加 [True]。
+% 确认上限后添加 PreparedLimitMKQ{整数}，并删除上方隐藏统计框的三行 ExplSyntax 代码。
+\newcommand{\spellsheetchoice}{\renderhalfspellsheet}
+\newgeometry{left=0cm,right=0cm,top=0cm,bottom=0cm}
+\onecolumn
+\begin{Form}
+\pdfbookmark[0]{Character Sheet}{Character Sheet}
+\rendercharactersheet
+\pdfbookmark[0]{Background Sheet}{Background Sheet}
+\renderbackgroundsheet
+\pdfbookmark[0]{Spellcasting Sheet}{Spellcasting Sheet}
+\spellsheetchoice
+\end{Form}
+
+\clearpage
+\newgeometry{left=18mm,right=18mm,top=17mm,bottom=17mm}
+\onecolumn\pagestyle{empty}
+\normalfont\normalsize
+\setlength{\parindent}{0pt}\setlength{\parskip}{5pt}
+
+\section*{Torbjorn Lindholm：附页}
+
+\par\noindent\textbf{转录核对项}\par
+1. 豁免勾选严格照原PDF：智力、感知、魅力。可能将侏儒豁免优势误当成熟练；请核对体质/智力职业豁免与种族优势，转换时未悄悄改动。\par
+2. 本次以新上传的“托比昂-奇械师 (1).pdf”为准：补入六道自选准备法术和轰雷剑。普通准备初始为6道，四道炼金师法术固定准备且不计数；准备上限原卡未写，标为?，确认采用的奇械师版本后填写。\par
+3. 轰雷剑的武器与攻击加值原卡未写，保留待填；其额外1d8与移动2d8照录。疗伤术保留原注2d8，未自行改算治疗量。\par
+4. 幸运专长没有正文或次数；不擅自加资源次数。仿制魔法物品方案与灵药效果表也未提供。\par
+5. 以PDF表单/V完整内容为准，恢复原页面上被裁切的职业、种族和专长文字。\par
+6. 原卡一处空白同调格被勾选，但未写物品名称，因此不虚构已同调装备。\par
+7. 当前HP48、临时HP0、金币650来自原字段；毒气喷涌攻击加值按原卡施法攻击+8补齐。\par
+
+
+\par\noindent\textbf{职业特性完整字段}\par
+1. 施法\par
+2. 工艺魔法 Tinker's Magicl\par
+你习得戏法修复术Mending。\par
+你可以在持握修补工具时以一个魔法动作，在你自身5尺内一个未占据空间创造一件物品。\par
+3. 仿制魔法物品 Replicate Magic Item\par
+你知晓一些用来制造魔法物品的奥术方案。\par
+4. 行业工具 Tools of the Trade\par
+你获得以下增益：\par
+工具熟练Tool Proficiency。 你获得炼金工具和草药工具的熟练。如果你已经拥有其中之一的熟练，则你获得另一种你选择的工匠工具的熟练（或如果你有全部两种熟练，选择另外两种）。\par
+药剂酿造Potion Crafting。当你使用《城主指南》的制造规则酿造药水时，制造所需花费的时间减半。\par
+炼金师法术 Alchemist Spells\par
+在达到下方炼金师法术列表中列出特定奇械师等级时，你将始终准备着等级对应的法术。\par
+5. 实验性灵药 Experimental Elixir\par
+每当你完成一次长休，持握着炼金工具时，你可以使用那件工具魔法性地制造两瓶灵药。为每瓶灵药在实验性灵药表中投掷灵药的效果，并在某人喝下灵药时触发效果。灵药会出现在一个扁瓶中，扁瓶会在灵药喝下或泼洒出后消失。当你完成长休时若还有保留下的灵药，该灵药和扁瓶都会消失。\par
+\par
+
+
+\par\noindent\textbf{种族特性完整字段}\par
+黑暗视觉Darkvision。你具有60尺黑暗视觉。\par
+侏儒狡黠Gnomish Cunning。你进行的智力、感知、魅力豁免检定均具有优势。\par
+岩石侏儒Rock Gnome 。你知晓修复术Mending和魔法伎俩Prestidigitation这两道戏法。此外，你可以花费10分钟时间，通过施展魔法伎俩法术来创造一个微型发条装置（AC为5，HP为1），比如一件玩具、一个打火机、一个音乐盒。当你创造这个设备时，你可以从魔法伎俩Prestidigitation戏法中选择一个效果来决定它的功能；你与其他生物可以使用附赠动作触碰该装置来激活它，此时该装置就会产生对应的效果。如果选择的效果存在选项，则在创建时选择其中一项应用。例如，如果你选择了法术中的那个点燃与熄灭的效果，你就需要决定设备是用来点火还是熄火的——一台设备无法同时做到两个功能。你同时最多拥有三台这样的装置，每一个都会在被创造出来的8小时后解体消失。你也可以用操作动作，触摸你的一台设备将其拆除。\par
+
+
+\par\noindent\textbf{专长完整字段}\par
+1. 幸运 Lucky你获得以下增益。\par
+2. 战地施法者（奇械师4级）\par
+专注Concentration。你为维持专注的所做的体质豁免具有优势。\par
+响应法术Reactive Spell。当一个生物因离开你的触及范围而引发你的借机攻击时，你能使用你的反应来对这个生物施展一道法术，而非发动一次借机攻击。这道法术的施法时间必须为动作，且必须将该生物选为法术的唯一目标。\par
+姿势成分Somatic Components。即使你的一只手或双手上都有武器/盾牌，你也能满足法术的姿势成分要求。\par
+
+\end{document}
