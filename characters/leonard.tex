@@ -1,0 +1,368 @@
+% !TeX program = lualatex
+% 放入原工程 characters/，从工程根目录用 LuaLaTeX 编译。
+% 从工程根目录编译：lualatex characters/leonard.tex（连续两次）
+% 来源：伦纳德角色卡.docx
+% 转换日期：2026-09-29；保留原卡数据，不代替角色合法性审查。
+% TODO: 原卡没有明确等级：未擅自按5级补上法术位、生命骰数量或荒野形态次数。确认后修改 Class、MaxHitDice、各环法术位及 PreparedLimitMKQ 的上限。
+% TODO: 原卡初始属性、背景加值、战地施法者、属性增强与最终属性不一致；本次只采用最后一张属性表，保留全部提升过程供核对。
+% TODO: 法术列表中的二环“旋风”英文对应待确认；以 Wind Spell 作为临时字段名。
+% TODO: 月亮结社/德鲁伊始终准备法术的具体来源与规则版本未填，没有擅自加法术或将原本可选条目锁定。
+% TODO: 常态技能与豁免按最终属性、+3熟练及原卡熟练清单补齐；弯刀/投石索默认拥有熟练。金币原文为“约424gp”。
+\documentclass[letterpaper,openany,twoside,twocolumn]{book}
+\usepackage{bookmark}
+% 原工程有dnd.sty时保持原样式；没有时仅加载角色卡所需的基础包。
+\IfFileExists{dnd.sty}{\usepackage[justified]{dnd}}{\usepackage{tikz}}
+\usepackage{ifthen}
+\usepackage{geometry}
+\usepackage{pstricks}
+\usepackage{fontawesome5}
+\usepackage{multicol}
+\usepackage{amssymb}
+% 最小中文TeX环境也可使用Fandol作为LuaTeX-ja的初始化字体。
+\makeatletter
+\IfFileExists{HaranoAjiMincho-Regular.otf}{}{\def\ltj@stdmcfont{file:FandolSong-Regular.otf}}
+\IfFileExists{HaranoAjiGothic-Medium.otf}{}{\def\ltj@stdgtfont{file:FandolHei-Regular.otf}}
+\makeatother
+\usepackage{dndtemplate}
+\usepackage{luatexja-fontspec}
+
+\IfFontExistsTF{Yozai-Medium}{
+  \setmainjfont[UprightFont=*-Medium,BoldFont=*-Medium,
+    BoldFeatures={FakeBold=2.5}]{Yozai}
+}{
+  \setmainjfont[BoldFont=FandolHei-Bold.otf]{FandolKai-Regular.otf}
+}
+\IfFontExistsTF{Abydos}{\setmainfont{Abydos}}{\setmainfont{Latin Modern Roman}}
+
+% 四个必填参数：环阶、英文名、中文名、附注；每环自动使用 A/B/C… 行。
+% 末尾可加[True]/[False]：锁定勾选/未勾选，且排除准备计数；省略可自由切换。
+\usepackage{mkq-interactive}
+
+\hypersetup{pdftitle={伦纳德·米切尔},pdfsubject={MKQ template character sheet}}
+\PrepareSpellsMKQ{Cure Wounds,Faerie Fire,Entangle,Speak with Animals,Moonbeam,Spike Growth,Lesser Restoration,Call Lightning,Plant Growth}
+
+% 基本资料和原卡最终属性
+\CharacterName{伦纳德·米切尔}
+\Class{月亮德鲁伊}
+\Race{人类}
+\Background{调查员}
+\Alignment{}
+\PlayerName{}
+\XP{}
+\StrengthScore{14}
+\StrengthModifier{2}
+\StrengthSavingThrowModifier{2}
+\SetStrengthProficiency{0}
+\DexterityScore{14}
+\DexterityModifier{2}
+\DexteritySavingThrowModifier{2}
+\SetDexterityProficiency{0}
+\ConstitutionScore{16}
+\ConstitutionModifier{3}
+\ConstitutionSavingThrowModifier{3}
+\SetConstitutionProficiency{0}
+\IntelligenceScore{13}
+\IntelligenceModifier{1}
+\IntelligenceSavingThrowModifier{4}
+\SetIntelligenceProficiency{1}
+\WisdomScore{20}
+\WisdomModifier{5}
+\WisdomSavingThrowModifier{8}
+\SetWisdomProficiency{1}
+\CharismaScore{11}
+\CharismaModifier{0}
+\CharismaSavingThrowModifier{0}
+\SetCharismaProficiency{0}
+\AcrobaticsSkillModifier{2}
+\SetAcrobaticsProficiency{0}
+\AnimalHandlingSkillModifier{8}
+\SetAnimalHandlingProficiency{1}
+\ArcanaSkillModifier{1}
+\SetArcanaProficiency{0}
+\AthleticsSkillModifier{2}
+\SetAthleticsProficiency{0}
+\DeceptionSkillModifier{0}
+\SetDeceptionProficiency{0}
+\HistorySkillModifier{1}
+\SetHistoryProficiency{0}
+\InsightSkillModifier{8}
+\SetInsightProficiency{1}
+\IntimidationSkillModifier{0}
+\SetIntimidationProficiency{0}
+\InvestigationSkillModifier{4}
+\SetInvestigationProficiency{1}
+\MedicineSkillModifier{5}
+\SetMedicineProficiency{0}
+\NatureSkillModifier{1}
+\SetNatureProficiency{0}
+\PerceptionSkillModifier{8}
+\SetPerceptionProficiency{1}
+\PerformanceSkillModifier{0}
+\SetPerformanceProficiency{0}
+\PersuasionSkillModifier{0}
+\SetPersuasionProficiency{0}
+\ReligionSkillModifier{1}
+\SetReligionProficiency{0}
+\SleightOfHandSkillModifier{2}
+\SetSleightOfHandProficiency{0}
+\StealthSkillModifier{2}
+\SetStealthProficiency{0}
+\SurvivalSkillModifier{8}
+\SetSurvivalProficiency{1}
+\Proficiency{3}
+\Perception{18}
+\ArmorClass{15}
+\Initiative{2}
+\Speed{30ft}
+\MaxHitPoints{44}
+\MaxHitDice{?d8}
+\CompactVitalsMKQ
+\Inspiration{} % PDF 初始未勾选英雄激励，原位置由原生表单覆盖。
+% 与模板联动：隐藏旧的印刷圆圈/行标签，统一居中绘制交互行。
+\newcommand{\MKQRenderDeathSaves}{%
+  \MKQDeathSaveRow{success}{成功}{\MKQLiftY{620.23745116}}%
+  \MKQDeathSaveRow{failure}{失败}{\MKQLiftY{600.23825166}}%
+}
+\newcommand{\MKQRenderCharacterFields}{%
+  \AddToShipoutPictureFG*{\AtPageLowerLeft{%
+    \MKQAtSheet{143.42533022}{869.816111585}{\MKQCheck[11pt]{heroic-inspiration}{false}{false}{英雄激励：勾选表示拥有}}%
+    % 可输入数值：字段名、提示、初始值、宽、高、字号（后三项单位bp）。
+    \MKQAtSheet{340}{779}{\MKQNumberField{current-hit-points}{当前生命值}{}{38}{18}{16}}%
+    \MKQAtSheet{476}{779}{\MKQNumberField{temporary-hit-points}{临时生命值}{}{38}{18}{16}}%
+    \MKQAtSheet{350.73265790}{\MKQLiftY{600.18398492}}{\MKQNumberField{current-hit-dice}{剩余生命骰数量}{}{52}{19}{18}}%
+    \MKQAtSheet{325.27479187}{141.90639645}{\MKQNumberField{gold-pieces}{金币}{424}{40}{16}{12}}%
+    \MKQRenderDeathSaves%
+  }}%
+}
+
+\CurrentHitPoints{}
+\TemporaryHitPoints{}
+\CurrentHitDice{}
+\CP{}
+\SP{}
+\GP{}
+\EP{}
+\PP{}
+
+\OtherProficienciesLanguages{\small
+\begin{description}
+\item[体型] 中型
+\item[工具熟练] 伪装工具（按原卡写法）
+\item[法器] 德鲁伊法器：木质圣徽
+\item[职业语言] 德鲁伊密语
+\end{description}}
+\Equipment{\small
+\begin{description}
+\item[护甲] 皮甲
+\item[盾牌] 警戒之石，替代木盾；效果原卡未列
+\item[武器] 弯刀、投石索
+\end{description}}
+\PersonalityTraits{}
+\Ideals{\small
+追寻自然与奥秘之间的真相。}
+\Bonds{\small
+克莱恩的童年好友；为朋友，也为其他人免遭不幸而行动。}
+\Flaws{}
+\FeaturesTraits{\scriptsize
+\begin{description}
+\item[适应力] 完成长休时获得英雄激励。
+\item[施法] 原卡选择神导术、抵抗术、橡棍术三道戏法。
+\item[德鲁伊密语] 保留原卡列出的职业能力。
+\item[月亮结社] 原卡未填写等级、荒野形态参数与结社能力细节，待补。
+\item[战地施法者] 保留原卡所选专长。
+\item[锐眼] 调查员专长；次数按熟练加值+3登记。
+\item[属性增强] 原卡另列“感知+2”；最终属性表与提升过程不一致，暂保留最终表。
+\item[药剂] 治疗药水3、圣水2、解毒剂1；用量在资源区勾选。
+\end{description}}
+
+% 攻击内容先测量，资源表自动接在其下方
+\AddWeapon{弯刀}{+5}{1d6+2 挥砍}
+\AddWeapon{投石索}{+5}{1d4+2 钝击}
+\AttacksAdditional{\scriptsize
+法术攻击+8，豁免DC16。荒野形态次数、形态资料及等级待确认。}
+\resourceMKQ{锐眼}{3}{长休恢复；检定失败不耗}[id=keen-eye]
+\resourceMKQ{治疗药水}{3}{勾选表示已消耗}[id=healing-potion]
+\resourceMKQ{圣水}{2}{勾选表示已消耗}[id=holy-water]
+\resourceMKQ{解毒剂}{1}{勾选表示已消耗}[id=antitoxin]
+
+% 背景页；没有提供的外貌、年龄等信息保持空白。
+\Age{}
+\Height{}
+\Weight{}
+\Eyes{}
+\Skin{}
+\Hair{}
+\CharacterAppearance{}
+\Characterbackground{\small
+克莱恩小时候的好朋友，玩伴。克莱恩家突遭变故，全家离奇死亡，更古怪的是周围人似乎很快淡忘了这一切，但伦纳德与众不同，清晰得记得一切，他知道一定有什么强大而诡异的力量作祟。为了朋友，更为了其他人免遭不幸，伦纳德成为了一名月亮结社的德鲁伊，在自然与奥秘之间追寻着真相。}
+\AlliesAndOrganizations{\small
+克莱恩·莫雷蒂：儿时玩伴，家人遇害后，伦纳德仍清晰记得这一切。}
+\OrganizationName{}
+\OrganizationSymbol{}
+\AdditionalFeaturesAndTraits{\small
+原卡未明确等级，因此生命骰总数、法术位与准备上限保留待定；法术准备仍可点击，上限确认前暂不显示统计框。
+
+最终属性照录：力量14、敏捷14、体质16、智力13、感知20、魅力11。
+
+当前选择的戏法为神导术、抵抗术、橡棍术；原卡列出的其他候选戏法保留在附页。}
+\Treasure{\small
+放大镜、易容工具、伪造工具；墨水、羽毛笔、羊皮纸10张；普通服装。
+
+探索者套组：背包、睡袋、野炊工具、火绒盒、火把15、口粮15天、水袋、丝绳50尺、麻绳50尺。
+
+金币约424gp，输入框采用424作为初始值。}
+\SpellcastingClass{月亮德鲁伊}
+\SpellcastingAbility{WIS}
+\SpellSaveDC{16}
+\SpellAttackBonus{+8}
+% 原卡准备上限未确认；原模板仅支持整数上限，暂隐藏统计框，准备圆圈保持可点击。
+\ExplSyntaxOn
+\cs_set_protected:Npn \mkq_render_counter: {}
+\ExplSyntaxOff
+\begin{document}
+% 戏法；这些条目不进入有环法术准备统计。
+\CantripSlotA{Guidance (神导术)}
+\CantripSlotB{Resistance (抵抗术)}
+\CantripSlotC{Shillelagh (橡棍术)}
+% 其余原卡候选戏法（没有全部算作同时已知）：
+% Druidcraft 德鲁伊伎俩；Mending 修复术；Poison Spray 毒气喷溅；Produce Flame 燃火术；Thorn Whip 荆棘之鞭。
+
+% 法术位：空白代表原卡未提供，不代表0。确认数量后取消 UsedSlotsMKQ 的注释。
+\FirstLevelSpellSlotsTotal{}
+\FirstLevelSpellSlotsExpended{}
+% TODO: \UsedSlotsMKQ{1}{待填数量}
+\SecondLevelSpellSlotsTotal{}
+\SecondLevelSpellSlotsExpended{}
+% TODO: \UsedSlotsMKQ{2}{待填数量}
+\ThirdLevelSpellSlotsTotal{}
+\ThirdLevelSpellSlotsExpended{}
+% TODO: \UsedSlotsMKQ{3}{待填数量}
+\FourthLevelSpellSlotsTotal{}
+\FourthLevelSpellSlotsExpended{}
+% TODO: \UsedSlotsMKQ{4}{待填数量}
+\FifthLevelSpellSlotsTotal{}
+\FifthLevelSpellSlotsExpended{}
+% TODO: \UsedSlotsMKQ{5}{待填数量}
+
+% 新版四参数 spellMKQ 自动按环阶编号；[True] 是始终准备且不占名额。
+\spellMKQ{1}{Animal Friendship}{动物交友}{}
+\spellMKQ{1}{Charm Person}{魅惑人类}{}
+\spellMKQ{1}{Create or Destroy Water}{造水/毁水}{}
+\spellMKQ{1}{Cure Wounds}{疗伤术}{}
+\spellMKQ{1}{Detect Magic}{侦测魔法}{}
+\spellMKQ{1}{Detect Poison and Disease}{侦测毒性与疾病}{}
+\spellMKQ{1}{Entangle}{纠缠术}{}
+\spellMKQ{1}{Faerie Fire}{妖火}{}
+\spellMKQ{1}{Fog Cloud}{云雾术}{}
+\spellMKQ{1}{Goodberry}{神莓术}{}
+\spellMKQ{1}{Healing Word}{治愈真言}{}
+\spellMKQ{1}{Jump}{跳跃术}{}
+\spellMKQ{1}{Longstrider}{大步奔行}{}
+\spellMKQ{1}{Purify Food and Drink}{净化食粮}{}
+\spellMKQ{1}{Speak with Animals}{动物交谈}{}
+\spellMKQ{1}{Thunderwave}{雷鸣波}{}
+\spellMKQ{2}{Animal Messenger}{动物信使}{}
+\spellMKQ{2}{Barkskin}{树肤术}{}
+\spellMKQ{2}{Darkvision}{黑暗视觉}{}
+\spellMKQ{2}{Enhance Ability}{强化属性}{}
+\spellMKQ{2}{Find Traps}{寻找陷阱}{}
+\spellMKQ{2}{Flame Blade}{火焰刀}{}
+\spellMKQ{2}{Flaming Sphere}{炽焰法球}{}
+% TODO: 原卡二环“旋风”未给英文名；Wind Spell 仅为占位标识，不断言对应哪道风系法术。
+\spellMKQ{2}{Wind Spell}{旋风}{待核}
+\spellMKQ{2}{Heat Metal}{加热金属}{}
+\spellMKQ{2}{Lesser Restoration}{次等复原术}{}
+\spellMKQ{2}{Locate Animals or Plants}{定位动植物}{}
+\spellMKQ{2}{Locate Object}{定位物体}{}
+\spellMKQ{2}{Moonbeam}{月华之光}{}
+\spellMKQ{2}{Pass without Trace}{行踪无痕}{}
+\spellMKQ{2}{Protection from Poison}{防护毒素}{}
+\spellMKQ{2}{Spike Growth}{荆棘丛生}{}
+\spellMKQ{3}{Call Lightning}{召雷术}{}
+\spellMKQ{3}{Conjure Animals}{动物召唤}{}
+\spellMKQ{3}{Daylight}{日光术}{}
+\spellMKQ{3}{Meld into Stone}{融身入石}{}
+\spellMKQ{3}{Plant Growth}{植物滋长}{}
+\spellMKQ{3}{Protection from Energy}{防护能量}{}
+\spellMKQ{3}{Sleet Storm}{雪雨暴}{}
+\spellMKQ{3}{Speak with Plants}{植物交谈}{}
+\spellMKQ{3}{Water Breathing}{水中呼吸}{}
+\spellMKQ{3}{Water Walk}{水上行走}{}
+\spellMKQ{3}{Wind Wall}{风墙术}{}
+\newcommand{\spellsheetchoice}{\renderhalfspellsheet}
+\newgeometry{left=0cm,right=0cm,top=0cm,bottom=0cm}
+\onecolumn
+\begin{Form}
+\pdfbookmark[0]{Character Sheet}{Character Sheet}
+\rendercharactersheet
+\pdfbookmark[0]{Background Sheet}{Background Sheet}
+\renderbackgroundsheet
+\pdfbookmark[0]{Spellcasting Sheet}{Spellcasting Sheet}
+\spellsheetchoice
+\end{Form}
+
+\clearpage
+\newgeometry{left=18mm,right=18mm,top=17mm,bottom=17mm}
+\onecolumn\pagestyle{empty}
+\normalfont\normalsize
+\setlength{\parindent}{0pt}\setlength{\parskip}{5pt}
+
+\section*{伦纳德·米切尔：附页}
+
+\par\noindent\textbf{转录核对项}\par
+1. 原卡没有明确等级：未擅自按5级补上法术位、生命骰数量或荒野形态次数。确认后修改 Class、MaxHitDice、各环法术位及 PreparedLimitMKQ 的上限。\par
+2. 原卡初始属性、背景加值、战地施法者、属性增强与最终属性不一致；本次只采用最后一张属性表，保留全部提升过程供核对。\par
+3. 法术列表中的二环“旋风”英文对应待确认；以 Wind Spell 作为临时字段名。\par
+4. 月亮结社/德鲁伊始终准备法术的具体来源与规则版本未填，没有擅自加法术或将原本可选条目锁定。\par
+5. 常态技能与豁免按最终属性、+3熟练及原卡熟练清单补齐；弯刀/投石索默认拥有熟练。金币原文为“约424gp”。\par
+
+
+\par\noindent\textbf{初始属性与提升原记录}\par
+初始属性：\par
+力量    14         敏捷    14       体质      15\par
+感知    16        魅力    11          智力      13\par
+调查员 感知+1 智力+1 魅力+1\par
+战地施法者 感知+1\par
+属性增强 感知+2\par
+属性值：\par
+力量    14 （+2）    敏捷    14  （+2）    体质    16 （+3）\par
+感知    20 （+5）    魅力    11  （+0）    智力    13（+1）\par
+
+
+\par\noindent\textbf{完整候选法术列表}\par
+0环：德鲁伊伎俩、神导术、修复术、毒气喷溅、燃火术、抵抗术、橡棍术、荆棘之鞭\par
+1环：动物交友、魅惑人类、造水/毁水、疗伤术、侦测魔法、侦测毒性与疾病、纠缠术、妖火、云雾术、神莓术、治愈真言、跳跃术、大步奔行、净化食粮、动物交谈、雷鸣波\par
+2环：动物信使、树肤术、黑暗视觉、强化属性、寻找陷阱、火焰刀、炽焰法球、旋风、加热金属、次等复原术、定位动植物、定位物体、月华之光、行踪无痕、防护毒素、荆棘丛生\par
+3环：召雷术、动物召唤、日光术、融身入石、植物滋长、防护能量、雪雨暴、植物交谈、水中呼吸、水上行走、风墙术\par
+
+
+\par\noindent\textbf{原卡准备列表}\par
+戏法：神导术、抵抗术、橡棍术\par
+1环：疗伤术、妖火、纠缠术、动物交谈\par
+2环：月华之光、荆棘丛生、次等复原术\par
+3环：召雷术、植物滋长\par
+
+
+\par\noindent\textbf{专长原记录}\par
+战地施法者\par
+锐眼（调查员）\par
+属性增强\par
+
+
+\par\noindent\textbf{完整装备原记录}\par
+护甲：皮甲\par
+盾牌：警戒之石（替代木盾）\par
+武器：弯刀\par
+法器：德鲁伊法器（木质圣徽）\par
+工具：放大镜、易容工具、伪造工具\par
+药水：治疗药水×3、圣水×2、解毒剂×1\par
+套组：探索者套组（背包、睡袋、野炊工具、火绒盒、火把×15、口粮×15天、水袋、丝绳50尺、麻绳50尺）\par
+记录：墨水、羽毛笔、羊皮纸×10\par
+服装：普通服装\par
+金币：约424gp\par
+
+
+\par\noindent\textbf{人类与调查员背景}\par
+人类：类人生物、中型、速度30尺；长休获得英雄激励；额外一项技能熟练和一项起源专长。调查员：洞悉、调查熟练；易容工具熟练；背景属性候选为智力、感知、魅力。本卡最终数值与起源专长选择按文档已填写内容保留。\par
+
+\end{document}
