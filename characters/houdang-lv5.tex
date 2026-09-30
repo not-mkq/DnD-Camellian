@@ -1,0 +1,298 @@
+% !TeX program = lualatex
+% 后荡：5级月亮结社德鲁伊。使用原工程 dndtemplate + mkq-interactive。
+% 保存到原工程 characters/houdang-lv5.tex；在工程根目录编译两次：
+% lualatex -interaction=nonstopmode -halt-on-error characters/houdang-lv5.tex
+% 来源：5r角色卡汉化-德鲁伊5级 -后荡 (1).pdf；转换日期：2026-10-01。
+% 不需要 mkq-party-cards.sty；未改动任何模板文件或模板字号。
+% 转录核对项（保留原卡，不自动修正规则）：
+% 1. AC16、HP43按原卡；装备栏只有皮甲与盾牌，AC来源待确认。
+% 2. 原卡“向导-魔法学徒（德鲁伊）-牧师法表”存在来源歧义；
+%    按实际列出的圣火、亡者丧钟、祝福术转录，不擅自替换法术。
+% 3. 已知形态含蝙蝠，且武器熟练列战斧、手斧、轻锤、战锤；均原样保留待确认。
+% 4. 技能/豁免空白加值按属性、熟练标记补全；奥秘、自然额外加入术师感知+5。
+% 5. 一环已消耗3、二环已消耗1、三环已消耗0；英雄激励按原卡勾选。
+% 6. 当前生命、临时生命、剩余生命骰、金币未填，留空可编辑。
+%    装备中的9GP+3GP只是起始记录，未当作当前余额。
+% 7. 普通准备9道；动物交谈、三道月德法术及祝福术固定准备且不计数。
+% 8. 原卡法术附注保留在背景页；不是一次完整的规则合法性审查。
+\documentclass[letterpaper,openany,twoside,twocolumn]{book}
+\usepackage{bookmark}
+% 原工程有dnd.sty时保持原样式；没有时仅加载角色卡所需的基础包。
+\IfFileExists{dnd.sty}{\usepackage[justified]{dnd}}{\usepackage{tikz}}
+\usepackage{ifthen}
+\usepackage{geometry}
+\usepackage{pstricks}
+\usepackage{fontawesome5}
+\usepackage{multicol}
+\usepackage{amssymb}
+% 最小中文TeX环境也可使用Fandol作为LuaTeX-ja的初始化字体。
+\makeatletter
+\IfFileExists{HaranoAjiMincho-Regular.otf}{}{\def\ltj@stdmcfont{file:FandolSong-Regular.otf}}
+\IfFileExists{HaranoAjiGothic-Medium.otf}{}{\def\ltj@stdgtfont{file:FandolHei-Regular.otf}}
+\makeatother
+\usepackage{dndtemplate}
+\usepackage{luatexja-fontspec}
+
+\IfFontExistsTF{Yozai-Medium}{
+  \setmainjfont[UprightFont=*-Medium,BoldFont=*-Medium,
+    BoldFeatures={FakeBold=2.5}]{Yozai}
+}{
+  \setmainjfont[BoldFont=FandolHei-Bold.otf]{FandolKai-Regular.otf}
+}
+\IfFontExistsTF{Abydos}{\setmainfont{Abydos}}{\setmainfont{Latin Modern Roman}}
+
+% 四个必填参数：环阶、英文名、中文名、附注；每环自动使用 A/B/C… 行。
+% 末尾可加[True]/[False]：锁定勾选/未勾选，且排除准备计数；省略可自由切换。
+\usepackage{mkq-interactive}
+
+\hypersetup{pdftitle={后荡},pdfsubject={MKQ template character sheet}}
+\PrepareSpellsMKQ{Absorb Elements,Healing Word,Goodberry,Faerie Fire,Hold Person,Spike Growth,Gust of Wind,Aura of Vitality,Dispel Magic}
+\PreparedLimitMKQ{9}
+
+% 基本资料和原卡最终属性
+\CharacterName{后荡}
+\Class{月亮德鲁伊 5}
+\Race{人类}
+\Background{向导}
+\Alignment{守序中立}
+\PlayerName{}
+\XP{}
+\StrengthScore{11}
+\StrengthModifier{0}
+\StrengthSavingThrowModifier{0}
+\SetStrengthProficiency{0}
+\DexterityScore{16}
+\DexterityModifier{3}
+\DexteritySavingThrowModifier{3}
+\SetDexterityProficiency{0}
+\ConstitutionScore{16}
+\ConstitutionModifier{3}
+\ConstitutionSavingThrowModifier{3}
+\SetConstitutionProficiency{0}
+\IntelligenceScore{12}
+\IntelligenceModifier{1}
+\IntelligenceSavingThrowModifier{4}
+\SetIntelligenceProficiency{1}
+\WisdomScore{20}
+\WisdomModifier{5}
+\WisdomSavingThrowModifier{8}
+\SetWisdomProficiency{1}
+\CharismaScore{11}
+\CharismaModifier{0}
+\CharismaSavingThrowModifier{0}
+\SetCharismaProficiency{0}
+\AcrobaticsSkillModifier{3}
+\SetAcrobaticsProficiency{0}
+\AnimalHandlingSkillModifier{5}
+\SetAnimalHandlingProficiency{0}
+\ArcanaSkillModifier{6}
+\SetArcanaProficiency{0}
+\AthleticsSkillModifier{0}
+\SetAthleticsProficiency{0}
+\DeceptionSkillModifier{0}
+\SetDeceptionProficiency{0}
+\HistorySkillModifier{1}
+\SetHistoryProficiency{0}
+\InsightSkillModifier{8}
+\SetInsightProficiency{1}
+\IntimidationSkillModifier{0}
+\SetIntimidationProficiency{0}
+\InvestigationSkillModifier{1}
+\SetInvestigationProficiency{0}
+\MedicineSkillModifier{5}
+\SetMedicineProficiency{0}
+\NatureSkillModifier{9}
+\SetNatureProficiency{1}
+\PerceptionSkillModifier{8}
+\SetPerceptionProficiency{1}
+\PerformanceSkillModifier{0}
+\SetPerformanceProficiency{0}
+\PersuasionSkillModifier{0}
+\SetPersuasionProficiency{0}
+\ReligionSkillModifier{1}
+\SetReligionProficiency{0}
+\SleightOfHandSkillModifier{3}
+\SetSleightOfHandProficiency{0}
+\StealthSkillModifier{6}
+\SetStealthProficiency{1}
+\SurvivalSkillModifier{8}
+\SetSurvivalProficiency{1}
+\Proficiency{3}
+\Perception{18}
+\ArmorClass{16}
+\Initiative{3}
+\Speed{30ft}
+\MaxHitPoints{43}
+\MaxHitDice{5d8}
+\CompactVitalsMKQ
+\Inspiration{} % PDF 初始未勾选英雄激励，原位置由原生表单覆盖。
+% 与模板联动：隐藏旧的印刷圆圈/行标签，统一居中绘制交互行。
+\newcommand{\MKQRenderDeathSaves}{%
+  \MKQDeathSaveRow{success}{成功}{\MKQLiftY{620.23745116}}%
+  \MKQDeathSaveRow{failure}{失败}{\MKQLiftY{600.23825166}}%
+}
+\newcommand{\MKQRenderCharacterFields}{%
+  \AddToShipoutPictureFG*{\AtPageLowerLeft{%
+    \MKQAtSheet{143.42533022}{869.816111585}{\MKQCheck[11pt]{heroic-inspiration}{true}{false}{英雄激励：勾选表示拥有}}%
+    % 可输入数值：字段名、提示、初始值、宽、高、字号（后三项单位bp）。
+    \MKQAtSheet{340}{779}{\MKQNumberField{current-hit-points}{当前生命值}{}{38}{18}{16}}%
+    \MKQAtSheet{476}{779}{\MKQNumberField{temporary-hit-points}{临时生命值}{}{38}{18}{16}}%
+    \MKQAtSheet{350.73265790}{\MKQLiftY{600.18398492}}{\MKQNumberField{current-hit-dice}{剩余生命骰数量}{}{52}{19}{18}}%
+    \MKQAtSheet{325.27479187}{141.90639645}{\MKQNumberField{gold-pieces}{金币}{}{40}{16}{12}}%
+    \MKQRenderDeathSaves%
+  }}%
+}
+
+\CurrentHitPoints{}
+\TemporaryHitPoints{}
+\CurrentHitDice{}
+\CP{}
+\SP{}
+\GP{}
+\EP{}
+\PP{}
+
+
+\OtherProficienciesLanguages{\small
+\begin{description}
+\item[体型] 中型
+\item[护甲] 轻甲、盾牌
+\item[武器（原卡）] 战斧、手斧、轻锤、战锤
+\item[工具] 草药工具、制图工具
+\item[语言] 通用语、巨人语、龙语、德鲁伊语
+\end{description}}
+\Equipment{\small
+皮甲、盾牌、镰刀、德鲁伊法器（长棍）、探索套组、草药工具。
+
+短弓、20支箭、制图工具、铺盖、箭袋、帐篷、旅行服装。
+
+起始资金记录：职业9GP，背景3GP；当前金币未填写。}
+\PersonalityTraits{}
+\Ideals{}
+\Bonds{}
+\Flaws{}
+\FeaturesTraits{\scriptsize
+\begin{description}
+\item[术师] 额外一道德鲁伊戏法；奥秘与自然检定额外+5，已计入。
+\item[荒野变形] 附赠动作，2次；六种已知形态，月德最大CR1。形态清单见背景页。
+\item[月亮结社] 变形后AC取野兽AC与18之较高值；获得15点临时生命。
+\item[荒野伙伴] 魔法动作，消耗法术位或荒野变形，施展寻获魔宠，无需材料。
+\item[荒野复苏] 无变形次数时，每回合一次消耗法术位换1次；反向换一环位每长休限1次。
+\item[适应力] 长休获得英雄激励。
+\item[技能] 人类额外熟练：洞悉。
+\item[幸运] 3点，长休恢复；自身D20检定优势，或对自己的攻击检定劣势。
+\item[魔法学徒] 原卡列圣火、亡者丧钟、祝福术；来源标注待确认。
+\item[4级提升] 感知+2，已计入20。
+\end{description}}
+
+% 攻击与资源共用模板自动排版，资源接在攻击内容之后。
+\AddWeapon{荆棘之鞭}{+8}{2d6}
+\AddWeapon{毒气喷涌}{+8}{2d12}
+\AddWeapon{圣火}{DC16}{2d8}
+\AddWeapon{亡者丧钟}{DC16}{2d8/2d12}
+\AddWeapon{点点星芒}{+8}{2d8}
+\AttacksAdditional{\scriptsize
+荆棘之鞭：30尺近战；毒气喷涌：30尺远程；点点星芒：月德远攻。
+神导术：动作、专注，属性检定+1d4。抵抗术：动作、专注。}
+\resourceMKQ{荒野变形}{2}{附赠动作；已用次数未填}[id=wild-shape]
+\resourceMKQ{幸运点}{3}{长休恢复；已用次数未填}[id=lucky]
+\resourceMKQ{荒野复苏}{1}{变形次数换一环位；长休恢复}[id=wild-resurgence]
+\resourceMKQ{学徒施法}{1}{祝福术免费施放；长休恢复}[id=magic-initiate]
+
+\Age{}\Height{}\Weight{}\Eyes{}\Skin{}\Hair{}
+\CharacterAppearance{}
+\Characterbackground{}
+\AlliesAndOrganizations{}
+\OrganizationName{}\OrganizationSymbol{}
+\AdditionalFeaturesAndTraits{\small
+\begin{description}
+\item[基础投点] 17、15、15、12、11、11。
+\item[向导加值] 敏捷+1、体质+1、感知+1。
+\item[最终属性] 力11、敏16、体16、智12、感20、魅11；4级感知+2。
+\item[已知形态（原卡）] 恐狼、棕熊、巨蜘蛛、巨章鱼、蝙蝠、巨獾。
+\item[待核对] 蝙蝠的等级可用性；AC16来源；所列武器熟练；魔法学徒的法表来源。
+\item[魔法学徒原文] “向导-魔法学徒（德鲁伊）-牧师法表”，含两道戏法、一环法术、改变法术。
+\end{description}}
+\Treasure{\small
+\begin{description}
+\item[原卡法术附注] 神莓术：1点血、附赠；妖火：识破隐形；疗伤术：2d8+5；月华之光：2d10；咒唤兽群：3d10；祝福术：攻击与豁免检定。
+\item[原卡专注标记] 神导术、抵抗术、妖火、荆棘丛生、造风术、月华之光、咒唤兽群。未标记者未据此判定为无需专注。
+\item[法术来源] 动物交谈：德鲁伊1级；点点星芒、疗伤术、月华之光、咒唤兽群：月德；圣火、亡者丧钟、祝福术：魔法学徒。
+\item[空白信息] 原卡未提供外貌、经历、个性、年龄等，保持空白。
+\end{description}}
+\SpellcastingClass{月亮德鲁伊 5}
+\SpellcastingAbility{WIS}
+\SpellSaveDC{16}
+\SpellAttackBonus{+8}
+
+% 七道戏法：仅移动统计框到空白四环区域，不调整字号或模板。
+\ExplSyntaxOn
+\patchcmd{\mkq_render_counter:}{\MKQAtSheet{157}{660}}{\MKQAtSheet{657}{731}}{}{}
+\patchcmd{\mkq_render_counter:}{\MKQAtSheet{156}{657}}{\MKQAtSheet{656}{728}}{}{}
+% 为原模板法术位控件设置原卡初始消耗；只影响本角色文件。
+\cs_set_protected:Npn \mkq_slots_widget:nn #1#2
+{
+  \MKQAtSheet{\mkq_slots_x:n {#1}}{\mkq_slots_y:n {#1}}
+  {
+    \int_step_inline:nn {#2}
+    {
+      \bool_lazy_or:nnTF
+        {\int_compare_p:n {#1=1} && \int_compare_p:n {##1<=3}}
+        {\int_compare_p:n {#1=2} && \int_compare_p:n {##1<=1}}
+        {\MKQCheck[9pt]{slot-#1-##1}{true}{false}{#1环法术位~##1：勾选表示已消耗}}
+        {\MKQCheck[9pt]{slot-#1-##1}{false}{false}{#1环法术位~##1：勾选表示已消耗}}
+      \int_compare:nNnT {##1}<{#2}{\hspace{3pt}}
+    }
+  }
+}
+\ExplSyntaxOff
+\begin{document}
+\CantripSlotA{Thorn Whip (荆棘之鞭)}
+\CantripSlotB{Poison Spray (毒气喷涌)}
+\CantripSlotC{Guidance (神导术)}
+\CantripSlotD{Resistance (抵抗术)}
+\CantripSlotE{Sacred Flame (圣火)}
+\CantripSlotF{Toll the Dead (亡者丧钟)}
+\CantripSlotG{Starry Wisp (点点星芒)}
+
+\FirstLevelSpellSlotsTotal{4}
+\FirstLevelSpellSlotsExpended{}
+\UsedSlotsMKQ{1}{4}
+\SecondLevelSpellSlotsTotal{3}
+\SecondLevelSpellSlotsExpended{}
+\UsedSlotsMKQ{2}{3}
+\ThirdLevelSpellSlotsTotal{2}
+\ThirdLevelSpellSlotsExpended{}
+\UsedSlotsMKQ{3}{2}
+\FourthLevelSpellSlotsTotal{0}\FourthLevelSpellSlotsExpended{}
+\FifthLevelSpellSlotsTotal{0}\FifthLevelSpellSlotsExpended{}
+
+% 四参数新版 spellMKQ：环阶、英文名、中文名、附注；每环自动编号。
+% [True] 锁定准备并排除计数；普通条目均初始准备，可点击切换。
+\spellMKQ{1}{Speak with Animals}{动物交谈}{德鲁伊1级}[True]
+\spellMKQ{1}{Absorb Elements}{吸收元素}{反应}
+\spellMKQ{1}{Healing Word}{治愈真言}{附赠}
+\spellMKQ{1}{Goodberry}{神莓术}{}
+\spellMKQ{1}{Faerie Fire}{妖火}{专注}
+\spellMKQ{1}{Cure Wounds}{疗伤术}{月德}[True]
+\spellMKQ{1}{Bless}{祝福术}{魔法学徒}[True]
+\spellMKQ{2}{Hold Person}{定身类人}{}
+\spellMKQ{2}{Spike Growth}{荆棘丛生}{专注}
+\spellMKQ{2}{Gust of Wind}{造风术}{专注}
+\spellMKQ{2}{Moonbeam}{月华之光}{月德}[True]
+\spellMKQ{3}{Aura of Vitality}{活力灵光}{}
+\spellMKQ{3}{Dispel Magic}{解除魔法}{}
+\spellMKQ{3}{Conjure Animals}{咒唤兽群}{月德}[True]
+
+\newcommand{\spellsheetchoice}{\renderhalfspellsheet}
+\newgeometry{left=0cm,right=0cm,top=0cm,bottom=0cm}
+\onecolumn
+\begin{Form}
+\pdfbookmark[0]{Character Sheet}{Character Sheet}
+\rendercharactersheet
+\pdfbookmark[0]{Background Sheet}{Background Sheet}
+\renderbackgroundsheet
+\pdfbookmark[0]{Spellcasting Sheet}{Spellcasting Sheet}
+\spellsheetchoice
+\end{Form}
+\end{document}
