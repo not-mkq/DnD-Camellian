@@ -1,0 +1,257 @@
+% !TeX program = lualatex
+% Wren | 0级 / 年幼的孩子 | 嘉年华孩子车卡规则
+% 规则：孩子车卡规则引用2014玩家手册（种族属性加值、幸运专长），故种族取2014人类：六项属性各+1。
+% 若团内统一用2024人类（英雄激励、熟习、起源专长），需重算：属性不加，另得1技能与1起源专长。
+% 属性：年幼的孩子 12/11/10/10/9/8，敏12 智11 感10 魅10 体9 力8，人类各+1。
+% 熟练加值：规则未写明，按+2计。无豁免熟练；技能熟练仅步骤三自选的巧手。
+% HP固定4；没有职业，因此没有生命骰。年幼的孩子一律小型体型（不影响速度）。
+% 硬币：规则为1d6铜币，按设定改为0——一个子都没有。
+% 没有法术：不设置法术页，也不渲染法术页。
+
+\documentclass[letterpaper,openany,twoside,twocolumn]{book}
+\usepackage{bookmark}
+% 原工程有dnd.sty时保持原样式；没有时仅加载角色卡所需的基础包。
+\IfFileExists{dnd.sty}{\usepackage[justified]{dnd}}{\usepackage{tikz}}
+\usepackage{ifthen}
+\usepackage{geometry}
+\usepackage{pstricks}
+\usepackage{fontawesome5}
+\usepackage{multicol}
+\usepackage{amssymb}
+% 最小中文TeX环境也可使用Fandol作为LuaTeX-ja的初始化字体。
+\makeatletter
+\IfFileExists{HaranoAjiMincho-Regular.otf}{}{\def\ltj@stdmcfont{file:FandolSong-Regular.otf}}
+\IfFileExists{HaranoAjiGothic-Medium.otf}{}{\def\ltj@stdgtfont{file:FandolHei-Regular.otf}}
+\makeatother
+\usepackage{dndtemplate}
+\usepackage{luatexja-fontspec}
+\hypersetup{pdftitle={Wren - Level 0 Child},pdfsubject={Character sheet}}
+
+\IfFontExistsTF{Yozai-Medium}{
+  \setmainjfont[UprightFont=*-Medium,BoldFont=*-Medium,
+    BoldFeatures={FakeBold=2.5}]{Yozai}
+}{
+  \setmainjfont[BoldFont=FandolHei-Bold.otf]{FandolKai-Regular.otf}
+}
+\IfFontExistsTF{Abydos}{\setmainfont{Abydos}}{\setmainfont{Latin Modern Roman}}
+
+\usepackage{mkq-interactive}
+
+% 基本资料
+\CharacterName{Wren (雷恩)}
+\Class{年幼的孩子 0}
+\Background{无}
+\PlayerName{was mkq}
+\Race{人类}
+\Alignment{未定}
+\XP{Milestone (里程碑)}
+
+\StrengthScore{9}
+\DexterityScore{13}
+\ConstitutionScore{10}
+\IntelligenceScore{12}
+\WisdomScore{11}
+\CharismaScore{11}
+
+\StrengthModifier{-1}
+\DexterityModifier{1}
+\ConstitutionModifier{0}
+\IntelligenceModifier{1}
+\WisdomModifier{0}
+\CharismaModifier{0}
+
+% 孩子没有任何豁免熟练。
+\StrengthSavingThrowModifier{-1}
+\DexteritySavingThrowModifier{1}
+\ConstitutionSavingThrowModifier{0}
+\IntelligenceSavingThrowModifier{1}
+\WisdomSavingThrowModifier{0}
+\CharismaSavingThrowModifier{0}
+
+\AcrobaticsSkillModifier{1}
+\AnimalHandlingSkillModifier{0}
+\ArcanaSkillModifier{1}
+\AthleticsSkillModifier{-1}
+\DeceptionSkillModifier{0}
+\HistorySkillModifier{1}
+\InsightSkillModifier{0}
+\IntimidationSkillModifier{0}
+\InvestigationSkillModifier{1}
+\MedicineSkillModifier{0}
+\NatureSkillModifier{1}
+\PerceptionSkillModifier{0}
+\PerformanceSkillModifier{0}
+\PersuasionSkillModifier{0}
+\ReligionSkillModifier{1}
+\SleightOfHandSkillModifier{3} % 敏捷1 + 熟练2
+\StealthSkillModifier{1}
+\SurvivalSkillModifier{0}
+
+\SetStrengthProficiency{0}
+\SetDexterityProficiency{0}
+\SetConstitutionProficiency{0}
+\SetIntelligenceProficiency{0}
+\SetWisdomProficiency{0}
+\SetCharismaProficiency{0}
+\SetAcrobaticsProficiency{0}
+\SetAnimalHandlingProficiency{0}
+\SetArcanaProficiency{0}
+\SetAthleticsProficiency{0}
+\SetDeceptionProficiency{0}
+\SetHistoryProficiency{0}
+\SetInsightProficiency{0}
+\SetIntimidationProficiency{0}
+\SetInvestigationProficiency{0}
+\SetMedicineProficiency{0}
+\SetNatureProficiency{0}
+\SetPerceptionProficiency{0}
+\SetPerformanceProficiency{0}
+\SetPersuasionProficiency{0}
+\SetReligionProficiency{0}
+\SetSleightOfHandProficiency{1}
+\SetStealthProficiency{0}
+\SetSurvivalProficiency{0}
+
+\CompactVitalsMKQ
+\Inspiration{} % 2014人类不会每次长休获得激励，PDF默认未勾选。
+\newcommand{\MKQRenderDeathSaves}{%
+  \MKQDeathSaveRow{success}{成功}{\MKQLiftY{620.23745116}}%
+  \MKQDeathSaveRow{failure}{失败}{\MKQLiftY{600.23825166}}%
+}
+\newcommand{\MKQRenderCharacterFields}{%
+  \AddToShipoutPictureFG*{\AtPageLowerLeft{%
+    \MKQAtSheet{143.42533022}{869.816111585}{\MKQCheck[11pt]{heroic-inspiration}{false}{false}{激励：勾选表示拥有}}%
+    % 可输入数值：字段名、提示、初始值、宽、高、字号（后三项单位bp）。
+    \MKQAtSheet{340}{779}{\MKQNumberField{current-hit-points}{当前生命值}{}{38}{18}{16}}%
+    \MKQAtSheet{476}{779}{\MKQNumberField{temporary-hit-points}{临时生命值}{}{38}{18}{16}}%
+    \MKQAtSheet{350.73265790}{\MKQLiftY{600.18398492}}{\MKQNumberField{current-hit-dice}{剩余生命骰数量}{0}{52}{19}{18}}%
+    \MKQAtSheet{325.27479187}{141.90639645}{\MKQNumberField{gold-pieces}{金币}{0}{40}{16}{12}}%
+    \MKQRenderDeathSaves%
+  }}%
+}
+\Proficiency{2}
+\Perception{10}
+\ArmorClass{11}
+\Initiative{1}
+\Speed{30ft}
+\MaxHitPoints{4}
+\MaxHitDice{无}
+\CurrentHitDice{} % 没有职业，没有生命骰。
+\CP{0}
+\SP{0}
+\GP{}
+\EP{0}
+\PP{0}
+
+\OtherProficienciesLanguages{\small
+  \begin{description}
+  \item[语言] 通用语、通用手语（卡梅教的）
+  \item[武器熟练] 无
+  \item[护甲熟练] 无
+  \item[工具熟练] 无
+  \end{description}
+  {\footnotesize *真要打起来，她会扔石头。}
+}
+
+\Equipment{\scriptsize
+  \begin{description}
+  \item[小饰品] 卡梅的戒指。心灵护盾戒指，已经坏了：有一道裂痕，没有任何效果。坏了以后也不会自己变小，戴在拇指上还是松，缠了几圈线。
+  \item[冒险用品] 粉笔（1cp）、信号哨（5cp）。
+  \item[零食] 一把蜂蜜姜糖
+  \item[小水袋] 装的是凉茶
+  \item[钱] 一个子都没有。
+  \end{description}
+}
+
+\PersonalityTraits{\small
+  最喜欢猫头鹰。\\
+  她见过的猫头鹰都不喜欢她。\\
+}
+% 孩子车卡规则：不需要理想与缺点。
+\Ideals{}
+\Bonds{\small
+  喵
+}
+\Flaws{}
+
+\FeaturesTraits{\scriptsize
+  \begin{description}
+  \item[年幼的孩子] 小型体型；生命值固定4；没有职业、背景与豁免熟练。
+  \item[幸运] 专长。3点幸运点，长休恢复。自己进行攻击、属性检定或豁免时，掷骰后、结果揭晓前，可花1点再掷一枚d20，选用其一。被攻击时也可花1点掷一枚d20，决定攻击用对方的骰还是你的。
+  \item[人类] 六项属性各+1（已计入）；额外语言：通用手语。
+  \item[巧手] 卡梅教的硬币戏法。
+  \item[通用手语] 两个人当着大人的面说悄悄话用。现在没人跟她比了。
+  \end{description}
+}
+
+% 快速索引。
+\AddWeapon{扔石头（临时）}{+1}{1d4+1 钝击}
+\AddWeapon{徒手打击}{+1}{0 钝击}
+\AttacksAdditional{}
+% 名称、最大次数（1--8）、可编辑备注的初始值；自动按顺序向下排列。
+\resourceMKQ{幸运}{3}{长休恢复}[id=lucky]
+
+\Age{10}
+\Height{1.3m}
+\Weight{26kg}
+\Eyes{Grey}
+\Skin{White}
+\Hair{Green!}
+\CharacterAppearance{
+  \IfFileExists{characters/images/wren.png}{
+    \includegraphics[width=5.75cm]{characters/images/wren.png}
+  }{}
+  10岁，小个子。\\\\
+  外貌描述：头发是绿的！平时塞在一顶旧毛线帽里。卡梅说过可以用染发剂帮她染掉，她不肯。
+}
+
+\AdditionalFeaturesAndTraits{\small
+  \textbf{0级速查}\\
+  生命值4，AC11，没有生命骰。\\
+  熟练加值按+2\\
+  没有武器熟练；扔石头按临时武器算。\\[4pt]
+  \textbf{卡梅的戒指}\\
+  心灵护盾戒指，坏了，不再有任何作用。\\
+  卡梅的灵魂可能还在里面，也可能已经受损。卡梅不愿意出来。\\
+  雷恩不知道这些。\\[4pt]
+  \textbf{保护圈}\\
+  卡梅带她在野外过夜时，会撑开一座李欧蒙小屋，告诉她“这是保护圈，里面谁也进不来”。\\
+  现在她还会用粉笔在地上画一个圈，蹲在里面。圈没有用，她知道。
+}
+
+\Characterbackground{\small
+  10岁，银月城人，没有姓。\\\\
+  父亲是银月城法师学院的教授，也是卡梅的导师。母亲是个很有钱的商人，一个子都不会给她。\\\\
+  七岁那年，她溜进父亲的实验室，一道解除魔法顺手驱散了她从出生起就戴着的伪装耳坠。她的头发露出了本来的绿色。全学院只有一个人是绿头发：卡梅。\\\\
+  父亲离了婚，把名下的弟子全部赶走。母亲恨她，觉得是她毁了这个家。学院里开始传：卡梅绿了导师。\\\\
+  只有卡梅把她接回了家，从那以后叫她雷恩。卡梅是个骗子，混善的那种：教她变硬币，教她手语，在野外撑开李欧蒙小屋。\\\\
+  卡梅最后一次出门，去了凡达林的矿坑。回来的只有尸体，和一枚戒指。\\\\
+  (但卡梅的头发不是生来就是绿色的, 诶呀, 到底怎么回事呢)
+  % 传言真假未定，留给DM与玩家。
+}
+
+\Treasure{\small
+  \textbf{不在身上}\\
+  卡梅租的小屋：房租下个月到期。\\
+  卡梅的备用法术书（在家里，她看不懂）。\\
+  卡梅的染发剂，蓝色和红色。\\
+}
+\AlliesAndOrganizations{\small
+  卡梅（在戒指里，不出来）\\
+  父亲（不认她）\\
+  母亲（恨她）\\
+}
+\OrganizationName{无}
+\OrganizationSymbol{{\Huge\faFeather}}
+
+\begin{document}
+\newgeometry{left=0cm,right=0cm,top=0cm,bottom=0cm}
+\onecolumn
+\begin{Form}
+\pdfbookmark[0]{Character Sheet}{Character Sheet}
+\rendercharactersheet
+\pdfbookmark[0]{Background Sheet}{Background Sheet}
+\renderbackgroundsheet
+% 没有法术：不渲染法术页。
+\end{Form}
+\end{document}
